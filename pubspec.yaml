@@ -1,0 +1,89 @@
+name: focusflow
+description: A mobile app to reduce social media addiction and boost productivity through gamification and smart app blocking.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Icons
+  cupertino_icons: ^1.0.8
+  
+  # State Management
+  provider: ^6.1.1
+  
+  # Navigation
+  go_router: ^17.0.0
+  
+  # Supabase
+  supabase_flutter: ^2.8.0
+  flutter_dotenv: ^5.1.0
+  
+  # Local Storage
+  shared_preferences: ^2.2.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  
+  # Permissions
+  permission_handler: ^12.0.1
+  
+  # App Usage & Screen Time Tracking
+  # usage_stats: ^1.3.0  # Temporarily disabled due to Android compilation issues
+  
+  # Overlay System
+  flutter_overlay_window: ^0.5.0
+  system_alert_window: ^2.0.1
+  
+  # Background Services
+  workmanager: ^0.9.0+3
+  flutter_foreground_task: ^9.1.0
+  
+  # Notifications
+  # flutter_local_notifications: ^16.3.2
+  
+  # Sensors (for Phone-Down Challenge)
+  sensors_plus: ^7.0.0
+  
+  # UI Components
+  google_fonts: ^6.1.0
+  flutter_svg: ^2.0.9
+  lottie: ^3.0.0
+  shimmer: ^3.0.0
+  
+  # Charts & Analytics
+  fl_chart: ^1.1.1
+  
+  # Date & Time
+  intl: ^0.20.2
+  
+  # QR Code (for Phone-Down Challenge)
+  qr_flutter: ^4.1.0
+  qr_code_scanner: ^1.0.1
+  
+  # Connectivity
+  connectivity_plus: ^7.0.0
+  
+  # UUID
+  uuid: ^4.3.3
+  
+  # Security & Crypto
+  crypto: ^3.0.3
+  flutter_local_notifications: ^19.5.0
+  timezone: ^0.10.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.8
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - .env
