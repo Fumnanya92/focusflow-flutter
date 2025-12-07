@@ -314,6 +314,11 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
       blockingProvider.disableTimeSchedule();
     }
     
+    // 🚀 Start monitoring if we have any blocked apps
+    if (blockingProvider.activelyBlockedApps.isNotEmpty) {
+      blockingProvider.startMonitoring();
+    }
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(_enableTimeSchedule 

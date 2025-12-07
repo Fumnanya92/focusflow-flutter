@@ -5,7 +5,7 @@ import '../../../core/theme.dart';
 import '../providers/task_provider.dart';
 import '../models/task_model.dart';
 import '../widgets/task_dialog.dart';
-import '../services/task_overlay_service.dart';
+
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -149,28 +149,6 @@ class _TasksScreenState extends State<TasksScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _testOverlay,
-        icon: const Icon(Icons.preview),
-        label: const Text('Test Overlay'),
-        backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
-      ),
-    );
-  }
-
-  /// Test method to demonstrate the new beautiful overlay
-  Future<void> _testOverlay() async {
-    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-    final hasTasksToday = taskProvider.todayTasks.isNotEmpty;
-    
-    await TaskOverlayService.showTaskReminderOverlay(
-      title: hasTasksToday ? 'Check Your Progress! 📈' : 'Good Morning! 🌅',
-      message: hasTasksToday 
-        ? 'You have ${taskProvider.todayTasks.length} tasks planned today. How are they going?'
-        : 'What are your main goals for today? Planning your tasks helps you stay focused!',
-      hasTasksToday: hasTasksToday,
-      taskCount: taskProvider.todayTasks.length,
     );
   }
 

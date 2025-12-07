@@ -153,6 +153,114 @@ class MainDashboardScreen extends StatelessWidget {
 
                       SizedBox(height: AppTheme.spaceMedium),
 
+                      // 🛡️ App Blocking Status Card
+                      Consumer<AppBlockingProvider>(
+                        builder: (context, blockingProvider, child) {
+                          if (blockingProvider.activelyBlockedApps.isEmpty) {
+                            return SizedBox.shrink(); // Hide if no blocked apps
+                          }
+                          
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(AppTheme.spaceMedium),
+                              decoration: BoxDecoration(
+                                color: blockingProvider.isBlockingActive 
+                                  ? AppTheme.success.withValues(alpha: 0.1)
+                                  : AppTheme.surfaceDark,
+                                borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                                border: Border.all(
+                                  color: blockingProvider.isBlockingActive 
+                                    ? AppTheme.success.withValues(alpha: 0.3)
+                                    : AppTheme.borderNavy,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        blockingProvider.isBlockingActive ? Icons.shield : Icons.shield_outlined,
+                                        color: blockingProvider.isBlockingActive ? AppTheme.success : AppTheme.textGray,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: AppTheme.spaceSmall),
+                                      Text(
+                                        blockingProvider.isBlockingActive ? '🛡️ App Blocking Active' : '⏰ App Blocking Scheduled',
+                                        style: theme.textTheme.titleMedium?.copyWith(
+                                          color: blockingProvider.isBlockingActive ? AppTheme.success : AppTheme.textGray,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      if (blockingProvider.isFocusModeEnabled)
+                                        Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.primary.withValues(alpha: 0.2),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            '🎯 FOCUS',
+                                            style: TextStyle(
+                                              color: AppTheme.primary,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  SizedBox(height: AppTheme.spaceSmall),
+                                  Text(
+                                    blockingProvider.isFocusModeEnabled 
+                                      ? 'Focus mode is blocking all ${blockingProvider.activelyBlockedApps.length} selected apps right now'
+                                      : blockingProvider.enableTimeSchedule
+                                        ? 'Scheduled blocking: ${blockingProvider.blockingStartTime?.format(context) ?? 'Not set'} - ${blockingProvider.blockingEndTime?.format(context) ?? 'Not set'}'
+                                        : '24/7 blocking of ${blockingProvider.activelyBlockedApps.length} apps',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: AppTheme.textGrayLight,
+                                    ),
+                                  ),
+                                  SizedBox(height: AppTheme.spaceSmall),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        'Blocked today: ${blockingProvider.blocksToday}',
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          color: AppTheme.textGray,
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      TextButton(
+                                        onPressed: () => context.go('/app-selection'),
+                                        style: TextButton.styleFrom(
+                                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                          minimumSize: Size.zero,
+                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                        child: Text(
+                                          'Manage',
+                                          style: TextStyle(
+                                            color: AppTheme.primary,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                      SizedBox(height: AppTheme.spaceMedium),
+
                       // Gamification Stats Card
                       const GamificationStatsCard(),
 
@@ -260,23 +368,7 @@ class MainDashboardScreen extends StatelessWidget {
                   ),
                 ),
 
-                // Test Task Reminder Button (DEV ONLY)
-                Positioned(
-                  bottom: 90,
-                  left: 16,
-                  child: FloatingActionButton.extended(
-                    onPressed: () async {
-                      // Test the task reminder overlay
-                      await blockingProvider.showTaskReminder();
-                    },
-                    backgroundColor: AppTheme.primary,
-                    icon: const Icon(Icons.bug_report, color: Colors.white),
-                    label: const Text(
-                      'Test Reminder',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
+
 
                 // Retractable Focus Button
                 Positioned(

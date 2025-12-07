@@ -15,13 +15,10 @@ import 'features/blocking/providers/app_blocking_provider.dart';
 import 'features/blocking/widgets/blocking_listener.dart';
 import 'features/rewards/providers/rewards_provider.dart';
 import 'features/gamification/providers/gamification_provider.dart';
-import 'features/tasks/services/task_overlay_service.dart';
-
 // Global navigator key for accessing navigation from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-// Global reference to AppBlockingProvider for task reminder functionality
-AppBlockingProvider? _globalAppBlockingProvider;
+
 
 
 
@@ -54,8 +51,7 @@ void main() async {
     await HybridDatabaseService.initializeService();
     debugPrint('✅ HybridDatabaseService initialized');
     
-    // Setup task reminder navigation channel
-    _setupTaskReminderChannel();
+    // Task reminders are now handled natively in AppBlockingService.kt;
     
   } catch (e) {
     debugPrint('Initialization error: $e');
@@ -82,100 +78,7 @@ void main() async {
 }
 
 /// Setup method channel for task reminder navigation
-void _setupTaskReminderChannel() {
-  debugPrint('🔧 Setting up task reminder method channel');
-  
-  // Initialize the new Flutter-based overlay service
-  NavigatorService.setNavigatorKey(navigatorKey);
-  TaskOverlayService.initialize();
-  const MethodChannel('com.example.focusflow/overlay').setMethodCallHandler((call) async {
-    debugPrint('📞 Method channel call received: ${call.method}');
-    switch (call.method) {
-      case 'taskReminderAction':
-        final action = call.arguments['action'] as String?;
-        debugPrint('📱 Task reminder action received: $action');
-        
-        switch (action) {
-          case 'open_tasks':
-            // Navigate to task planning screen - handle it directly here
-            debugPrint('📝 ===== NAVIGATION REQUEST =====');
-            debugPrint('📝 Navigating to task planning from task reminder');
-            _navigateToTasks();
-            debugPrint('📝 ===== END NAVIGATION REQUEST =====');
-            break;
-            
-          case 'ask_me_later':
-            // Handle snooze - call AppBlockingProvider method
-            debugPrint('⏰ ===== SNOOZE REQUEST =====');
-            debugPrint('⏰ User chose to snooze task reminder for 10 minutes');
-            _handleTaskReminderSnooze();
-            debugPrint('⏰ ===== END SNOOZE REQUEST =====');
-            break;
-            
-          case 'remind_at_end':
-            // Handle remind at end of focus time
-            debugPrint('🎯 User chose to be reminded at end of focus time');
-            _handleRemindAtEnd();
-            break;
-            
-          default:
-            debugPrint('❓ Unknown task reminder action: $action');
-        }
-        break;
-        
-      case 'navigate_to_tasks':
-        // Fallback navigation method
-        debugPrint('📝 Fallback navigation to tasks received');
-        _navigateToTasks();
-        break;
-    }
-  });
-}
 
-/// Navigate to task planning screen
-void _navigateToTasks() {
-  // Add delay to ensure app is brought to foreground first
-  Future.delayed(const Duration(milliseconds: 500), () {
-    try {
-      // Navigate to existing My Tasks page
-      appRouter.go('/tasks');
-      debugPrint('✅ Navigation to My Tasks page completed');
-    } catch (e) {
-      debugPrint('❌ Navigation error: $e');
-      // Fallback to dashboard if tasks navigation fails
-      try {
-        appRouter.go('/dashboard');
-        debugPrint('✅ Fallback navigation to dashboard completed');
-      } catch (fallbackError) {
-        debugPrint('❌ Fallback navigation failed: $fallbackError');
-      }
-    }
-  });
-}
-
-/// Handle task reminder snooze (ask me in 10 minutes)
-void _handleTaskReminderSnooze() {
-  debugPrint('⏰ ===== SNOOZE FUNCTIONALITY =====');
-  debugPrint('⏰ User chose to snooze task reminder for 10 minutes');
-  
-  if (_globalAppBlockingProvider != null) {
-    debugPrint('⏰ Calling snoozeTaskReminder on AppBlockingProvider');
-    _globalAppBlockingProvider!.snoozeTaskReminder();
-    debugPrint('⏰ ✅ Snooze request completed - reminder will show again in 10 minutes');
-  } else {
-    debugPrint('⏰ ❌ Error: AppBlockingProvider not available for snooze');
-  }
-  
-  debugPrint('⏰ ===== END SNOOZE FUNCTIONALITY =====');
-}
-
-/// Handle remind at end of focus time
-void _handleRemindAtEnd() {
-  // Set flag to remind user at end of focus session
-  debugPrint('✅ User will be reminded at end of focus time');
-}
-
-/// Setup navigation method channel
 
 
 class FocusFlowApp extends StatelessWidget {
@@ -225,11 +128,7 @@ class FocusFlowApp extends StatelessWidget {
             ),
             update: (context, rewards, previous) => previous ?? GamificationProvider(rewards),
           ),
-          ChangeNotifierProvider(create: (_) {
-            final provider = AppBlockingProvider();
-            _globalAppBlockingProvider = provider; // Store global reference
-            return provider;
-          }),
+          ChangeNotifierProvider(create: (_) => AppBlockingProvider()),
           ChangeNotifierProxyProvider2<GamificationProvider, AppBlockingProvider, FocusTimerProvider>(
             create: (context) {
               final timer = FocusTimerProvider();

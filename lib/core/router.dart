@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'supabase_helpers.dart';
@@ -18,7 +19,8 @@ import '../features/analytics/screens/analytics_screen.dart';
 import '../features/rewards/screens/rewards_screen.dart';
 import '../features/settings/screens/settings_screen.dart';
 import '../features/blocking/screens/app_selection_screen.dart';
-import '../features/blocking/screens/overlay_screen.dart';
+
+
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/welcome',
@@ -35,9 +37,9 @@ final GoRouter appRouter = GoRouter(
       // Get current auth state from Supabase directly
       final hasStoredAuth = supabase.auth.currentUser != null;
       
-      print('🔄 [ROUTER] Current location: ${state.matchedLocation}');
-      print('🔄 [ROUTER] Has auth: $hasStoredAuth');
-      print('🔄 [ROUTER] Onboarding completed: $onboardingCompleted');
+      debugPrint('🔄 [ROUTER] Current location: ${state.matchedLocation}');
+      debugPrint('🔄 [ROUTER] Has auth: $hasStoredAuth');
+      debugPrint('🔄 [ROUTER] Onboarding completed: $onboardingCompleted');
       
       // Auth-required routes (main app functionality)
       final authRequiredRoutes = [
@@ -60,13 +62,13 @@ final GoRouter appRouter = GoRouter(
       
       // 1. If trying to access auth-required route without authentication
       if (isAuthRequired && !hasStoredAuth) {
-        print('🔄 [ROUTER] Auth required but not authenticated, redirecting to login');
+        debugPrint('🔄 [ROUTER] Auth required but not authenticated, redirecting to login');
         return '/login';
       }
       
       // 2. If authenticated but onboarding not completed, allow onboarding
       if (hasStoredAuth && !onboardingCompleted && !isPublicRoute) {
-        print('🔄 [ROUTER] Authenticated but onboarding not completed, redirecting to personalization');
+        debugPrint('🔄 [ROUTER] Authenticated but onboarding not completed, redirecting to personalization');
         return '/personalization'; // Skip to final onboarding step
       }
       
@@ -75,7 +77,7 @@ final GoRouter appRouter = GoRouter(
           (state.matchedLocation == '/welcome' || 
            state.matchedLocation == '/permissions' || 
            state.matchedLocation == '/personalization')) {
-        print('🔄 [ROUTER] Onboarding completed and authenticated, redirecting to dashboard');
+        debugPrint('🔄 [ROUTER] Onboarding completed and authenticated, redirecting to dashboard');
         return '/dashboard';
       }
       
@@ -87,7 +89,7 @@ final GoRouter appRouter = GoRouter(
         
         // If trying to access main app without essential permissions, redirect to permissions
         if (isAuthRequired && (!hasUsageStats || !hasOverlay)) {
-          print('🔄 [ROUTER] Missing critical permissions, redirecting to /permissions');
+          debugPrint('🔄 [ROUTER] Missing critical permissions, redirecting to /permissions');
           return '/permissions';
         }
       }
@@ -99,13 +101,13 @@ final GoRouter appRouter = GoRouter(
       
     } catch (e) {
       // If there's an error, redirect to login for safety
-      print('🔄 [ROUTER] Error in redirect logic: $e');
+      debugPrint('🔄 [ROUTER] Error in redirect logic: $e');
       if (state.matchedLocation != '/login' && state.matchedLocation != '/welcome') {
         return '/login';
       }
     }
     
-    print('🔄 [ROUTER] No redirect needed, staying on ${state.matchedLocation}');
+    debugPrint('🔄 [ROUTER] No redirect needed, staying on ${state.matchedLocation}');
     return null;
   },
   routes: [
@@ -144,14 +146,7 @@ final GoRouter appRouter = GoRouter(
     ),
     
     // Blocking overlay route
-    GoRoute(
-      path: '/blocking-overlay/:appName',
-      name: 'blocking-overlay',
-      builder: (context, state) {
-        final appName = state.pathParameters['appName'] ?? 'Unknown App';
-        return OverlayScreen(appName: appName);
-      },
-    ),
+
 
     
     // Main Dashboard
@@ -219,14 +214,7 @@ final GoRouter appRouter = GoRouter(
       name: 'app-selection',
       builder: (context, state) => const AppSelectionScreen(),
     ),
-    GoRoute(
-      path: '/overlay',
-      name: 'overlay',
-      builder: (context, state) {
-        final appName = state.uri.queryParameters['app'] ?? 'Instagram';
-        return OverlayScreen(appName: appName);
-      },
-    ),
+
     
     // Settings
     GoRoute(
@@ -234,5 +222,6 @@ final GoRouter appRouter = GoRouter(
       name: 'settings',
       builder: (context, state) => const SettingsScreen(),
     ),
+
   ],
 );

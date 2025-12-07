@@ -138,59 +138,59 @@ class _TaskDialogState extends State<TaskDialog> {
                       
                       SizedBox(height: AppTheme.spaceMedium),
                       
-                      // Priority and Tag row
-                      Row(
+                      // Priority and Tag
+                      Column(
                         children: [
                           // Priority
-                          Expanded(
-                            child: DropdownButtonFormField<TaskPriority>(
-                              initialValue: _selectedPriority,
-                              decoration: const InputDecoration(
-                                labelText: 'Priority',
-                                prefixIcon: Icon(Icons.flag),
-                              ),
-                              items: TaskPriority.values.map((priority) {
-                                return DropdownMenuItem(
-                                  value: priority,
-                                  child: Text(
-                                    '${_getPriorityEmoji(priority)} ${_getPriorityName(priority)}',
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedPriority = value!;
-                                });
-                              },
+                          DropdownButtonFormField<TaskPriority>(
+                            initialValue: _selectedPriority,
+                            decoration: const InputDecoration(
+                              labelText: 'Priority',
+                              prefixIcon: Icon(Icons.flag),
+                              isDense: true,
                             ),
+                            items: TaskPriority.values.map((priority) {
+                              return DropdownMenuItem(
+                                value: priority,
+                                child: Text(
+                                  '${_getPriorityEmoji(priority)} ${_getPriorityName(priority)}',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedPriority = value!;
+                              });
+                            },
                           ),
                           
-                          SizedBox(width: AppTheme.spaceMedium),
+                          const SizedBox(height: 16),
                           
                           // Tag
-                          Expanded(
-                            child: DropdownButtonFormField<TaskTag>(
-                              initialValue: _selectedTag,
-                              decoration: const InputDecoration(
-                                labelText: 'Category',
-                                prefixIcon: Icon(Icons.category),
-                              ),
-                              items: TaskTag.values.map((tag) {
-                                return DropdownMenuItem(
-                                  value: tag,
-                                  child: Text(
-                                    '${_getTagEmoji(tag)} ${_getTagName(tag)}',
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedTag = value!;
-                                });
-                              },
+                          DropdownButtonFormField<TaskTag>(
+                            initialValue: _selectedTag,
+                            decoration: const InputDecoration(
+                              labelText: 'Category',
+                              prefixIcon: Icon(Icons.category),
+                              isDense: true,
                             ),
+                            items: TaskTag.values.map((tag) {
+                              return DropdownMenuItem(
+                                value: tag,
+                                child: Text(
+                                  '${_getTagEmoji(tag)} ${_getTagName(tag)}',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedTag = value!;
+                              });
+                            },
                           ),
                         ],
                       ),
