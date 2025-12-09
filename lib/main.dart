@@ -3,10 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'core/theme.dart';
 import 'core/router.dart';
 import 'core/services/local_storage_service.dart';
-import 'core/services/hybrid_database_service.dart';
+import 'core/services/optimized_hybrid_database_service.dart';
+import 'core/services/database_migration_service.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/focus/providers/focus_timer_provider.dart';
 import 'features/tasks/providers/task_provider.dart';
@@ -26,7 +29,15 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Preserve the splash screen until app is fully loaded
+  FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
+  
   try {
+    // Initialize Database Migrations FIRST
+    debugPrint('🔧 Running database migrations...');
+    await DatabaseMigrationService.initialize();
+    debugPrint('✅ Database migrations completed');
+    
     // Initialize Hive first
     debugPrint('🔧 Initializing LocalStorageService...');
     await LocalStorageService.initialize();
@@ -46,10 +57,10 @@ void main() async {
     );
     debugPrint('✅ Supabase initialized');
     
-    // Initialize Hybrid Database Service AFTER Supabase
-    debugPrint('🔧 Initializing HybridDatabaseService...');
-    await HybridDatabaseService.initializeService();
-    debugPrint('✅ HybridDatabaseService initialized');
+    // Initialize Optimized Hybrid Database Service AFTER Supabase
+    debugPrint('🔧 Initializing OptimizedHybridDatabaseService...');
+    await OptimizedHybridDatabaseService.initializeService();
+    debugPrint('✅ OptimizedHybridDatabaseService initialized');
     
     // Task reminders are now handled natively in AppBlockingService.kt;
     
@@ -78,11 +89,37 @@ void main() async {
 }
 
 /// Setup method channel for task reminder navigation
+void _setupNavigationChannel() {
+  const platform = MethodChannel('app.focusflow/navigation');
+  
+  platform.setMethodCallHandler((call) async {
+    if (call.method == 'navigateTo') {
+      final route = call.arguments as String;
+      if (navigatorKey.currentContext != null) {
+        final context = navigatorKey.currentContext!;
+        context.go(route);
+      }
+    }
+  });
+}
 
-
-
-class FocusFlowApp extends StatelessWidget {
+class FocusFlowApp extends StatefulWidget {
   const FocusFlowApp({super.key});
+
+  @override
+  State<FocusFlowApp> createState() => _FocusFlowAppState();
+}
+
+class _FocusFlowAppState extends State<FocusFlowApp> {
+  @override
+  void initState() {
+    super.initState();
+    _setupNavigationChannel();
+    // Remove splash screen after the app is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FlutterNativeSplash.remove();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

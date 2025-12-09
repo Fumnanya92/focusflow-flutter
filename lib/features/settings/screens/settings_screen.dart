@@ -253,7 +253,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showAboutDialog(
       context: context,
       applicationName: 'FocusFlow',
-      applicationVersion: '1.0.0',
+      applicationVersion: '1.0.0+1', // Must match pubspec.yaml version
       applicationIcon: const Icon(
         Icons.center_focus_strong,
         size: 64,

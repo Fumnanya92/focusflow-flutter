@@ -57,11 +57,17 @@ class AppBlockingProvider extends ChangeNotifier {
     {'package': 'com.facebook.mlite', 'name': 'Facebook Lite (M)'},
     {'package': 'com.facebook.android', 'name': 'Facebook (Alt)'},
     {'package': 'com.facebook.pages.app', 'name': 'Facebook Pages'},
+    {'package': 'com.facebook.orca', 'name': 'Messenger'},
+    {'package': 'com.facebook.system', 'name': 'Facebook Services'},
+    {'package': 'com.facebook.appmanager', 'name': 'Facebook App Manager'},
     {'package': 'com.snapchat.android', 'name': 'Snapchat'},
     {'package': 'com.reddit.frontpage', 'name': 'Reddit'},
     {'package': 'com.pinterest', 'name': 'Pinterest'},
     {'package': 'com.linkedin.android', 'name': 'LinkedIn'},
-    {'package': 'com.youtube.android', 'name': 'YouTube'},
+    {'package': 'com.google.android.youtube', 'name': 'YouTube'},
+    {'package': 'com.youtube.android', 'name': 'YouTube (Alt)'},
+    {'package': 'com.google.android.apps.youtube.music', 'name': 'YouTube Music'},
+    {'package': 'com.google.android.apps.youtube.vr', 'name': 'YouTube VR'},
   ];
 
   static const MethodChannel _appMonitorChannel = MethodChannel('app.focusflow/monitor');
@@ -646,9 +652,16 @@ class AppBlockingProvider extends ChangeNotifier {
   Future<void> _checkFacebookVariants() async {
     try {
       final installedApps = await getInstalledApps();
-      final facebookApps = installedApps
-          .where((app) => app['packageName']?.toString().toLowerCase().contains('facebook') == true)
-          .toList();
+      
+      // Check for Facebook apps
+      final facebookApps = installedApps.where((app) {
+        final packageName = app['packageName']?.toString().toLowerCase() ?? '';
+        final appName = app['appName']?.toString().toLowerCase() ?? '';
+        return packageName.contains('facebook') || 
+               packageName.contains('messenger') ||
+               appName.contains('facebook') ||
+               appName.contains('messenger');
+      }).toList();
 
       debugPrint('📘 === FACEBOOK APP DETECTION DEBUG ===');
       debugPrint('📘 Found ${facebookApps.length} Facebook-related apps:');
@@ -659,16 +672,35 @@ class AppBlockingProvider extends ChangeNotifier {
         debugPrint('📘   - $appName: $packageName');
 
         final isBlocked = _blockedApps.any((blocked) => blocked.packageName == packageName);
-        if (isBlocked) {
-          debugPrint('📘     ✅ This package IS in blocked list');
-        } else {
-          debugPrint('📘     ❌ This package is NOT in blocked list');
-        }
+        debugPrint('📘     ${isBlocked ? '✅ This package IS in blocked list' : '❌ This package is NOT in blocked list'}');
       }
 
       debugPrint('📘 === END FACEBOOK DEBUG ===');
+      
+      // Check for YouTube apps
+      final youtubeApps = installedApps.where((app) {
+        final packageName = app['packageName']?.toString().toLowerCase() ?? '';
+        final appName = app['appName']?.toString().toLowerCase() ?? '';
+        return packageName.contains('youtube') || 
+               appName.contains('youtube');
+      }).toList();
+
+      debugPrint('📺 === YOUTUBE APP DETECTION DEBUG ===');
+      debugPrint('📺 Found ${youtubeApps.length} YouTube-related apps:');
+
+      for (final app in youtubeApps) {
+        final packageName = app['packageName']?.toString() ?? 'Unknown';
+        final appName = app['appName']?.toString() ?? 'Unknown';
+        debugPrint('📺   - $appName: $packageName');
+
+        final isBlocked = _blockedApps.any((blocked) => blocked.packageName == packageName);
+        debugPrint('📺     ${isBlocked ? '✅ This package IS in blocked list' : '❌ This package is NOT in blocked list'}');
+      }
+
+      debugPrint('📺 === END YOUTUBE DEBUG ===');
+      
     } catch (e) {
-      debugPrint('❌ Error checking Facebook variants: $e');
+      debugPrint('❌ Error checking Facebook/YouTube variants: $e');
     }
   }
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_blocking_provider.dart';
-import '../../../core/router.dart';
 
 /// Widget that listens for app blocking events and shows staged overlays
 class BlockingListener extends StatefulWidget {
@@ -46,15 +45,13 @@ class _BlockingListenerState extends State<BlockingListener> {
     try {
       final blockingProvider = Provider.of<AppBlockingProvider>(context, listen: false);
       
-      // Use the global router directly instead of context.go
-      appRouter.go('/blocking-overlay/$appName');
-      
-      // Clear the blocked app immediately since we're navigating to dedicated screen
+      // Android native service handles the blocking overlay completely
+      // Just clear the blocked app state since the native overlay is shown
       blockingProvider.clearCurrentlyBlockedApp();
       _lastBlockedApp = null;
-      debugPrint('✅ Successfully navigated to blocking overlay for: $appName');
+      debugPrint('✅ Blocking handled by native Android service for: $appName');
     } catch (e) {
-      debugPrint('❌ Error navigating to blocking overlay: $e');
+      debugPrint('❌ Error clearing blocked app state: $e');
     }
   }
 }

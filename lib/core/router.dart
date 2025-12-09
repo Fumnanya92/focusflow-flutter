@@ -57,8 +57,7 @@ final GoRouter appRouter = GoRouter(
         '/login', '/signup', '/forgot-password'
       ];
       
-      final isPublicRoute = publicRoutes.contains(state.matchedLocation) ||
-          state.matchedLocation.startsWith('/blocking-overlay/');
+      final isPublicRoute = publicRoutes.contains(state.matchedLocation);
       
       // 1. If trying to access auth-required route without authentication
       if (isAuthRequired && !hasStoredAuth) {
@@ -144,10 +143,6 @@ final GoRouter appRouter = GoRouter(
       name: 'forgot-password',
       builder: (context, state) => const ForgotPasswordScreen(),
     ),
-    
-    // Blocking overlay route
-
-
     
     // Main Dashboard
     GoRoute(

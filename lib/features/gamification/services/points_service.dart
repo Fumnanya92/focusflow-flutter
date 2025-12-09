@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../../../core/services/hybrid_database_service.dart';
+import '../../../core/services/optimized_hybrid_database_service.dart';
 import '../../../core/services/local_storage_service.dart';
 import '../../rewards/providers/rewards_provider.dart';
 
@@ -8,7 +8,7 @@ import '../../rewards/providers/rewards_provider.dart';
 /// Every minute you stay focused, you level up — just like gaining XP in your favorite game.
 class PointsService {
   final RewardsProvider _rewardsProvider;
-  final HybridDatabaseService _db = HybridDatabaseService();
+  final OptimizedHybridDatabaseService _db = OptimizedHybridDatabaseService();
   
   PointsService(this._rewardsProvider);
 

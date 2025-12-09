@@ -733,11 +733,23 @@ class MainActivity : FlutterActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleBlockingIntent(intent)
+        handleRouteIntent(intent)
     }
 
     private fun handleBlockingIntent(intent: Intent) {
         // No longer needed - native service handles all blocking with beautiful native overlay
         println("📱 Blocking handled entirely by native service")
+    }
+
+    private fun handleRouteIntent(intent: Intent) {
+        val route = intent.getStringExtra("route")
+        if (route != null) {
+            // Navigate to specific route in Flutter
+            flutterEngine?.dartExecutor?.binaryMessenger?.let { messenger ->
+                val routeChannel = MethodChannel(messenger, "app.focusflow/navigation")
+                routeChannel.invokeMethod("navigateTo", route)
+            }
+        }
     }
 
     override fun onDestroy() {

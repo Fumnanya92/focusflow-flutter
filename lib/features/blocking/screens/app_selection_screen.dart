@@ -153,9 +153,10 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
     final packageController = TextEditingController();
     final nameController = TextEditingController();
     
-    final result = await showDialog<Map<String, String>>(
-      context: context,
-      builder: (context) => AlertDialog(
+    try {
+      final result = await showDialog<Map<String, String>>(
+        context: context,
+        builder: (context) => AlertDialog(
         title: const Text('Add Custom App'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -209,6 +210,11 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
     
     if (result != null) {
       await _addCustomApp(result['package']!, result['name']!);
+    }
+    } finally {
+      // Always dispose controllers to prevent memory leaks
+      packageController.dispose();
+      nameController.dispose();
     }
   }
   

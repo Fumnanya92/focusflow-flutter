@@ -465,11 +465,73 @@ class _TaskCard extends StatelessWidget {
                   ),
                 ),
               ),
+              
+              // Options menu
+              PopupMenuButton<String>(
+                onSelected: (value) async {
+                  if (value == 'delete') {
+                    await _showDeleteConfirmation(context, task, taskProvider);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                        SizedBox(width: 8),
+                        Text('Delete Task', style: TextStyle(color: Colors.red)),
+                      ],
+                    ),
+                  ),
+                ],
+                icon: Icon(Icons.more_vert, color: AppTheme.textGray),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _showDeleteConfirmation(BuildContext context, Task task, TaskProvider taskProvider) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.surfaceDark,
+        title: const Text('Delete Task'),
+        content: Text('Are you sure you want to delete "${task.title}"? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      await taskProvider.deleteTask(task.id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Task "${task.title}" deleted'),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: 'Undo',
+              textColor: Colors.white,
+              onPressed: () {
+              },
+            ),
+          ),
+        );
+      }
+    }
   }
 
   String _formatDueDate(DateTime dueDate) {

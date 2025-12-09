@@ -1,4 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
+import 'dart:typed_data';
 import '../models/user_data.dart';
 import '../models/app_settings.dart';
 
@@ -6,6 +9,14 @@ class LocalStorageService {
   static const String _userBoxName = 'user_data';
   static const String _settingsBoxName = 'app_settings';
   static const String _cacheBoxName = 'cache_data';
+  
+  // Generate encryption key from device-specific data
+  static Uint8List _getEncryptionKey() {
+    const deviceId = 'focusflow_secure_storage'; // In production, use device-specific ID
+    final bytes = utf8.encode(deviceId);
+    final digest = sha256.convert(bytes);
+    return Uint8List.fromList(digest.bytes);
+  }
 
   static late Box<UserData> _userBox;
   static late Box<AppSettings> _settingsBox;
@@ -18,8 +29,14 @@ class LocalStorageService {
     Hive.registerAdapter(UserDataAdapter());
     Hive.registerAdapter(AppSettingsAdapter());
     
-    // Open boxes
-    _userBox = await Hive.openBox<UserData>(_userBoxName);
+    // Get encryption key for sensitive data
+    final encryptionKey = _getEncryptionKey();
+    
+    // Open boxes with encryption for sensitive user data
+    _userBox = await Hive.openBox<UserData>(
+      _userBoxName,
+      encryptionCipher: HiveAesCipher(encryptionKey),
+    );
     _settingsBox = await Hive.openBox<AppSettings>(_settingsBoxName);
     _cacheBox = await Hive.openBox<dynamic>(_cacheBoxName);
   }

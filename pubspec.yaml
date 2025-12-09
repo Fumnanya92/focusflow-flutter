@@ -72,6 +72,10 @@ dependencies:
   crypto: ^3.0.3
   flutter_local_notifications: ^19.5.0
   timezone: ^0.10.1
+  
+  # Splash Screen & App Icon
+  flutter_native_splash: ^2.3.10
+  flutter_launcher_icons: ^0.13.1
 
 dev_dependencies:
   flutter_test:
@@ -85,3 +89,35 @@ flutter:
   
   assets:
     - .env
+    - lib/core/assets/
+    
+# Splash Screen Configuration
+flutter_native_splash:
+  color: "#0A1111"  # Your app's dark background color
+  image: lib/core/assets/welcome.png
+  color_dark: "#0A1111"
+  image_dark: lib/core/assets/welcome.png
+  android_12:
+    image: lib/core/assets/welcome.png
+    color: "#0A1111"
+    image_dark: lib/core/assets/welcome.png
+    color_dark: "#0A1111"
+
+# App Icon Configuration  
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "lib/core/assets/logo.png"
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "lib/core/assets/logo.png"
+    background_color: "#0A1111"
+    theme_color: "#19E66B"
+  windows:
+    generate: true
+    image_path: "lib/core/assets/logo.png"
+    icon_size: 48
+  macos:
+    generate: true
+    image_path: "lib/core/assets/logo.png"
