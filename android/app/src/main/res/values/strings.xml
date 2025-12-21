@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FocusFlow</string>
+    <string name="accessibility_service_description">
+FocusFlow uses Accessibility Service to monitor app usage and block distracting apps during focus sessions. This helps you stay productive by preventing access to social media and other apps you choose to block. No personal data is collected - we only detect which apps are being opened to enforce your focus rules.
+    </string>
+</resources>

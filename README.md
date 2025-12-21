@@ -3,7 +3,7 @@
   
   # FocusFlow
   
-  ### 🎯 Reclaim Your Focus. Break Free From Digital Distractions.
+  ###  Reclaim Your Focus. Break Free From Digital Distractions.
   
   A powerful Flutter mobile app that helps you reduce social media addiction, boost productivity, and build healthier digital habits through intelligent app blocking, gamification, and focus techniques.
   
@@ -15,7 +15,7 @@
 
 ---
 
-## 🌟 Key Features
+##  Key Features
 
 ### 🛡️ **Smart App Blocking**
 - **Real-time blocking** of distracting apps with native Android service

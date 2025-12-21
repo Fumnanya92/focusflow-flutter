@@ -73,3 +73,10 @@ database_analysis.*
 
 # macOS
 .DS_Store
+
+# Keystore and build signing files (sensitive)
+*.jks
+*.keystore
+key.properties
+keystore.properties
+focusflow-*.jks
