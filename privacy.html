@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FocusFlow — Privacy Policy</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;max-width:900px;margin:32px auto;color:#111;padding:0 16px}
+    h1,h2{color:#0b6f4a}
+    p{line-height:1.6}
+    ul{line-height:1.6}
+    footer{margin-top:32px;font-size:0.9rem;color:#555}
+  </style>
+</head>
+<body>
+  <h1>Privacy Policy — FocusFlow</h1>
+
+  <p>Last updated: December 21, 2025</p>
+
+  <h2>Overview</h2>
+  <p>FocusFlow is a productivity app that helps users stay focused by offering timers, task management, gamification, and an Android-native app-blocking service. We prioritise privacy and keep data collection to the minimum required for app functionality. This page explains what the app does, what data (if any) is collected, how it's used, and how you can control it.</p>
+
+  <h2>What the app does</h2>
+  <ul>
+    <li>Provides Pomodoro and Deep Focus timers.</li>
+    <li>Allows users to create tasks, earn XP and badges, and track streaks.</li>
+    <li>Offers a native Android foreground service that can monitor which app is in the foreground and show a blocking overlay during focus sessions (to help prevent access to distracting apps the user chooses to block).</li>
+    <li>Supports optional cloud sync (Supabase) for cross-device data when the user signs up and explicitly enables sync.</li>
+  </ul>
+
+  <h2>App access & required permissions</h2>
+  <p>To provide app-blocking and reminders, FocusFlow requests the following Android permissions on devices where those features are used:</p>
+  <ul>
+    <li><strong>Usage access (PACKAGE_USAGE_STATS)</strong> — to detect which app is currently in the foreground. This is used only to determine when a blocked app is opened so the native service can show an overlay or take blocking action.</li>
+    <li><strong>Display over other apps (SYSTEM_ALERT_WINDOW)</strong> — to show the blocking overlay. If not granted, the app falls back to notifications.</li>
+    <li><strong>Notifications</strong> — to deliver session reminders and blocking notifications.</li>
+    <li><strong>Foreground service</strong> — to run the native blocking service reliably in the background.</li>
+  </ul>
+  <p>Permissions are requested only when a feature that needs them is enabled. The user is explicitly prompted and must grant these permissions in system settings.</p>
+
+  <h2>Data collected</h2>
+  <p>We collect only the data necessary for the app's functions. No sensitive personal data or secret keys are embedded in this policy.</p>
+  <ul>
+    <li><strong>Account information</strong> (optional): If you create an account, we store the email and username to identify your account. This is required only for cloud sync and cross-device features.</li>
+    <li><strong>App usage signals (local)</strong>: The native Android service may read foreground app package names to enforce blocking rules. These package names are used locally on-device to decide when to show the blocking overlay. This data is not used for advertising and is not sent to third parties by default.</li>
+    <li><strong>Local settings & progress</strong>: Preferences, blocked-app lists, timer history, points, badges and streaks are stored locally (in an encrypted Hive database where sensitive data is encrypted).</li>
+    <li><strong>Optional cloud sync</strong>: If you enable cloud sync, the app will upload selected sync items (account id, username, points, badges, blocked app list, and basic session stats) to the project's Supabase backend. Sync is optional and can be disabled from settings; you can delete your account and synced data by contacting support.</li>
+  </ul>
+
+  <h2>How we use data</h2>
+  <ul>
+    <li>To operate the core functionality (blocking selected apps, timers, and task management).</li>
+    <li>To provide optional cross-device sync and to restore user state when the user signs in.</li>
+    <li>To send service notifications and reminders.</li>
+  </ul>
+
+  <h2>Data sharing & third parties</h2>
+  <p>We do not share personal data with advertisers or analytics companies. We do not include third-party advertising SDKs in the app. Data stored in the optional cloud sync may be stored in Supabase (a managed backend); operations on that backend are governed by Supabase's policies. We never embed secrets or private keys in the app repository.</p>
+
+  <h2>Ads</h2>
+  <p>FocusFlow does not display third-party advertisements and does not include ad SDKs.</p>
+
+  <h2>Content rating & target audience</h2>
+  <p>Content rating: Suitable for Everyone (no explicit content).</p>
+  <p>Target audience: general users aged 13 and above. The app is not intended for children under 13; if your local law requires parental consent for younger users, please comply when providing access.</p>
+
+  <h2>Health, financial, and government features</h2>
+  <p>FocusFlow is a productivity tool and does not provide medical, financial, or government-specific services. It makes no clinical claims or treatment recommendations and is not a medical device. It does not require government approvals.</p>
+
+  <h2>Data safety summary for Google Play</h2>
+  <ul>
+    <li><strong>Data types collected:</strong> Account info (email, username) — user-provided when creating an account; Device or other identifiers — foreground app package names (used locally for blocking); App content — blocked-app lists and timer/task content (local user data); Diagnostics — none collected for analytics by default.</li>
+    <li><strong>Collected for:</strong> App functionality, optional cloud sync, user support and restoration.</li>
+    <li><strong>Shared with third parties:</strong> Only optional synced data to Supabase if the user opts in. No advertising or analytics sharing.</li>
+  </ul>
+
+  <h2>User controls & data rights</h2>
+  <ul>
+    <li>Opt-out of cloud sync at any time in Settings; disabling sync prevents further uploads.</li>
+    <li>Delete local app data via the app settings or by uninstalling the app; encrypted local data is removed when the app's storage is cleared.</li>
+    <li>To delete cloud-stored data or request account removal, contact support (see below).</li>
+  </ul>
+
+  <h2>Contact & developer information</h2>
+  <p>If you have questions about privacy, data deletion, or need assistance:</p>
+  <ul>
+    <li>Developer: FocusFlow</li>
+    <li>Email: <a href="mailto:support@focusflow.app">support@focusflow.app</a></li>
+    <li>Project repository: included with the app package and source (no secrets included)</li>
+  </ul>
+
+  <footer>
+    <p>We are committed to keeping your data safe and only collecting what is necessary to provide the app's functionality. This policy will be updated as the app evolves; significant changes will be posted here.</p>
+  </footer>
+</body>
+</html>
