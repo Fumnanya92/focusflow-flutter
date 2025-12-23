@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -29,8 +30,14 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Preserve the splash screen until app is fully loaded
-  FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
+  // Preserve the splash screen until app is fully loaded (skip on web)
+  if (!kIsWeb) {
+    try {
+      FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
+    } catch (e) {
+      debugPrint('Native splash error (non-critical): $e');
+    }
+  }
   
   try {
     // Initialize Database Migrations FIRST
@@ -115,10 +122,16 @@ class _FocusFlowAppState extends State<FocusFlowApp> {
   void initState() {
     super.initState();
     _setupNavigationChannel();
-    // Remove splash screen after the app is initialized
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      FlutterNativeSplash.remove();
-    });
+    // Remove splash screen after the app is initialized (skip on web)
+    if (!kIsWeb) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        try {
+          FlutterNativeSplash.remove();
+        } catch (e) {
+          debugPrint('Native splash removal error (non-critical): $e');
+        }
+      });
+    }
   }
 
   @override

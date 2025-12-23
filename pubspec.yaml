@@ -60,7 +60,7 @@ dependencies:
   
   # QR Code (for Phone-Down Challenge)
   qr_flutter: ^4.1.0
-  qr_code_scanner: ^1.0.1
+  # qr_code_scanner: ^1.0.1  # Temporarily disabled due to Android namespace issue
   
   # Connectivity
   connectivity_plus: ^7.0.0

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/services.dart';
@@ -43,6 +44,16 @@ class _PermissionsScreenState extends State<PermissionsScreen> with WidgetsBindi
   }
 
   Future<void> _checkPermissions() async {
+    // Skip permission checks on web
+    if (kIsWeb) {
+      setState(() {
+        _usageStatsGranted = true; // Mock as granted on web
+        _overlayGranted = true;
+        _notificationsGranted = true;
+      });
+      return;
+    }
+    
     if (!Platform.isAndroid) return;
     
     try {
@@ -85,6 +96,8 @@ class _PermissionsScreenState extends State<PermissionsScreen> with WidgetsBindi
   }
 
   Future<void> _requestNotifications() async {
+    if (kIsWeb) return; // Skip on web
+    
     final status = await Permission.notification.request();
     setState(() {
       _notificationsGranted = status.isGranted;
@@ -100,6 +113,8 @@ class _PermissionsScreenState extends State<PermissionsScreen> with WidgetsBindi
   }
 
   Future<void> _requestOverlayPermission() async {
+    if (kIsWeb) return; // Skip on web
+    
     final status = await Permission.systemAlertWindow.request();
     
     if (status.isGranted) {
@@ -116,6 +131,8 @@ class _PermissionsScreenState extends State<PermissionsScreen> with WidgetsBindi
   }
 
   Future<void> _requestUsageStatsPermission() async {
+    if (kIsWeb) return; // Skip on web
+    
     try {
       // Open usage access settings directly
       await _openUsageStatsSettings();
@@ -132,6 +149,8 @@ class _PermissionsScreenState extends State<PermissionsScreen> with WidgetsBindi
   }
 
   Future<void> _openUsageStatsSettings() async {
+    if (kIsWeb) return; // Skip on web
+    
     if (Platform.isAndroid) {
       try {
         const platform = MethodChannel('app.focusflow/permissions');

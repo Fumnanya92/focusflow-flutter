@@ -1,15 +1,21 @@
--- =============================================
--- FUNCTIONS: Database functions and triggers
--- =============================================
+#!/bin/bash
 
--- Drop existing triggers first
+# Fix database trigger for FocusFlow signup
+# This script fixes the handle_new_user function to use correct table names
+
+echo "🔧 Fixing FocusFlow database trigger..."
+
+SUPABASE_URL="https://zulkbxcxxplruibcewqb.supabase.co"
+SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1bGtieGN4eHBscnVpYmNld3FiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NDM1NjU1OCwiZXhwIjoyMDc5OTMyNTU4fQ.8YWJ3YKaGfi3YVJ2hAQ_RQJVANaghbVcKUz6M7ny-Fk"
+
+# Updated function to fix the trigger issue
+SQL_FIX="
+-- Drop existing trigger first
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-DROP TRIGGER IF EXISTS update_user_settings_updated_at ON public.user_settings;
-DROP TRIGGER IF EXISTS update_user_points_updated_at ON public.user_points;
 
--- Function to handle new user signup
+-- Fixed function to handle new user signup
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS \$\$
 BEGIN
     -- Create user profile (with error handling)
     BEGIN
@@ -47,25 +53,25 @@ EXCEPTION
         RAISE NOTICE 'Error in handle_new_user: %', SQLERRM;
         RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+\$\$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Trigger for new user creation
+-- Re-create trigger for new user creation
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+"
 
--- Function to update updated_at timestamp
-CREATE OR REPLACE FUNCTION public.update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+echo "Executing database fix..."
+response=$(curl -s -X POST "$SUPABASE_URL/rest/v1/rpc/exec_sql" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $SUPABASE_KEY" \
+    -H "apikey: $SUPABASE_KEY" \
+    -d "{\"sql\": \"$SQL_FIX\"}")
 
--- Add updated_at triggers
-CREATE TRIGGER update_user_settings_updated_at BEFORE UPDATE ON public.user_settings 
-    FOR EACH ROW EXECUTE PROCEDURE public.update_updated_at_column();
-
-CREATE TRIGGER update_user_points_updated_at BEFORE UPDATE ON public.user_points 
-    FOR EACH ROW EXECUTE PROCEDURE public.update_updated_at_column();
+if [[ $response == *"error"* ]]; then
+    echo "❌ Database fix failed: $response"
+    exit 1
+else
+    echo "✅ Database trigger fixed successfully!"
+    echo "ℹ️ Signup should now work properly"
+fi

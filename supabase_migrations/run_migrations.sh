@@ -15,7 +15,7 @@ SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 MIGRATIONS=(
     "01_cleanup.sql"
     "02_core_tables.sql" 
-    "03_gamification.sql"
+    "03_gamification_clean.sql"
     "04_app_blocking.sql"
     "05_challenges.sql"
     "06_security_policies.sql"

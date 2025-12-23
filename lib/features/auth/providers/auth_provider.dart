@@ -118,7 +118,7 @@ class AuthProvider extends ChangeNotifier {
           .eq('id', _currentUser!.id)
           .maybeSingle();
       
-      if (response != null && _userData != null) {
+      if (response != null && response.isNotEmpty && _userData != null) {
         _userData!.username = response['username'];
         _userData!.avatarUrl = response['avatar_url'];
         await LocalStorageService.saveUserData(_userData!);
@@ -218,24 +218,38 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Input validation
-      if (username.isEmpty || email.isEmpty || password.isEmpty) {
-        throw Exception('All fields are required');
+      // Input validation with specific error messages
+      if (username.trim().isEmpty) {
+        throw Exception('Username is required');
+      }
+      if (email.trim().isEmpty) {
+        throw Exception('Email address is required');
+      }
+      if (password.isEmpty) {
+        throw Exception('Password is required');
       }
       
       debugPrint('🟢 [AUTH_PROVIDER] Initial validation passed');
 
       // Sanitize input
-      final sanitizedUsername = SecurityService.sanitizeInput(username);
-      final sanitizedEmail = SecurityService.sanitizeInput(email);
+      final sanitizedUsername = SecurityService.sanitizeInput(username.trim());
+      final sanitizedEmail = SecurityService.sanitizeInput(email.trim());
       debugPrint('🟢 [AUTH_PROVIDER] Sanitized inputs - Username: $sanitizedUsername, Email: $sanitizedEmail');
 
       if (!SecurityService.isValidEmail(sanitizedEmail)) {
-        throw Exception('Please enter a valid email address');
+        throw Exception('Please enter a valid email address (example@email.com)');
       }
 
       if (!SecurityService.isValidUsername(sanitizedUsername)) {
-        throw Exception('Username can only contain letters, numbers, and underscores (3-20 characters)');
+        throw Exception('Username must be 3-20 characters and contain only letters, numbers, and underscores');
+      }
+
+      if (sanitizedUsername.length < 3) {
+        throw Exception('Username must be at least 3 characters long');
+      }
+
+      if (password.length < 6) {
+        throw Exception('Password must be at least 6 characters long');
       }
 
       // Enhanced password validation
@@ -253,13 +267,39 @@ class AuthProvider extends ChangeNotifier {
       
       debugPrint('🟢 [AUTH_PROVIDER] Rate limit passed, attempting Supabase signup...');
 
-      final response = await supabase.auth.signUp(
-        email: email.trim().toLowerCase(),
-        password: password,
-        data: {
-          'username': username.trim(),
-        },
-      );
+      // Ensure username is within database constraints (max 15 chars for safety)
+      final constrainedUsername = sanitizedUsername.length > 15 
+          ? sanitizedUsername.substring(0, 15)
+          : sanitizedUsername;
+          
+      debugPrint('🟢 [AUTH_PROVIDER] Using constrained username: $constrainedUsername (length: ${constrainedUsername.length})');
+
+      // First, try signup without profile creation (in case trigger fails)
+      AuthResponse response;
+      try {
+        response = await supabase.auth.signUp(
+          email: email.trim().toLowerCase(),
+          password: password,
+          data: {
+            'username': constrainedUsername,
+          },
+        );
+        debugPrint('🟢 [AUTH_PROVIDER] Supabase signup successful');
+      } catch (e) {
+        debugPrint('🔴 [AUTH_PROVIDER] Supabase signup failed: $e');
+        
+        // If signup fails due to database trigger, try without user metadata
+        if (e.toString().contains('Database error') || e.toString().contains('constraint')) {
+          debugPrint('🟡 [AUTH_PROVIDER] Retrying signup without metadata...');
+          response = await supabase.auth.signUp(
+            email: email.trim().toLowerCase(),
+            password: password,
+          );
+          debugPrint('🟢 [AUTH_PROVIDER] Retry successful');
+        } else {
+          rethrow;
+        }
+      }
 
       debugPrint('🟢 [AUTH_PROVIDER] Supabase signup response received');
       debugPrint('🟢 [AUTH_PROVIDER] User: ${response.user?.id}');
@@ -268,6 +308,25 @@ class AuthProvider extends ChangeNotifier {
       if (response.user != null) {
         debugPrint('🟢 [AUTH_PROVIDER] Signup successful! User ID: ${response.user!.id}');
         _currentUser = response.user;
+        
+        // Always create profile manually to ensure it exists
+        try {
+          await _createUserProfile(response.user!, constrainedUsername);
+          debugPrint('🟢 [AUTH_PROVIDER] Profile created successfully');
+        } catch (e) {
+          debugPrint('⚠️ [AUTH_PROVIDER] Profile creation failed (may already exist): $e');
+          // Don't fail signup if profile creation fails - user account is created
+        }
+        
+        // Additional safety - create other required records
+        try {
+          await _createUserSettings(response.user!.id);
+          await _createUserPoints(response.user!.id);
+          debugPrint('🟢 [AUTH_PROVIDER] Additional user records created');
+        } catch (e) {
+          debugPrint('⚠️ [AUTH_PROVIDER] Additional record creation failed: $e');
+          // This is also non-critical for signup success
+        }
       }
 
       debugPrint('🟢 [AUTH_PROVIDER] Signup completed successfully');
@@ -282,13 +341,25 @@ class AuthProvider extends ChangeNotifier {
       return false;
     } on PostgrestException catch (e) {
       debugPrint('🔴 [AUTH_PROVIDER] Database error during signup: ${e.message}');
-      _errorMessage = e.message;
+      if (e.message.contains('duplicate key') || e.message.contains('already exists')) {
+        _errorMessage = 'This email or username is already registered. Try signing in instead.';
+      } else if (e.message.contains('relation') && e.message.contains('does not exist')) {
+        _errorMessage = 'Database setup incomplete. Please try again in a moment.';
+      } else {
+        _errorMessage = 'Database error: ${e.message}';
+      }
       _isLoading = false;
       notifyListeners();
       return false;
     } catch (e) {
       debugPrint('🔴 [AUTH_PROVIDER] General error during signup: $e');
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      if (e.toString().contains('timeout') || e.toString().contains('Connection timeout')) {
+        _errorMessage = 'Connection timeout. Please check your internet and try again.';
+      } else if (e.toString().contains('network') || e.toString().contains('fetch')) {
+        _errorMessage = 'Network error. Please check your internet connection.';
+      } else {
+        _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      }
       _isLoading = false;
       notifyListeners();
       return false;
@@ -349,22 +420,32 @@ class AuthProvider extends ChangeNotifier {
 
 
   String _getAuthErrorMessage(String errorMessage) {
+    debugPrint('🔴 [AUTH] Raw error message: $errorMessage');
+    
     if (errorMessage.contains('Invalid login credentials')) {
-      return 'Invalid email or password. Please try again.';
+      return 'Incorrect email or password. Please check and try again.';
     } else if (errorMessage.contains('Email not confirmed')) {
-      return 'Please check your email and click the confirmation link.';
-    } else if (errorMessage.contains('User already registered')) {
-      return 'An account with this email already exists.';
+      return 'Please check your email inbox and click the confirmation link to activate your account.';
+    } else if (errorMessage.contains('User already registered') || errorMessage.contains('Email already registered')) {
+      return 'This email is already registered. Try signing in instead.';
     } else if (errorMessage.contains('Password should be at least 6 characters')) {
       return 'Password must be at least 6 characters long.';
     } else if (errorMessage.contains('Signup requires a valid password')) {
-      return 'Please enter a valid password.';
-    } else if (errorMessage.contains('Unable to validate email address: invalid format')) {
-      return 'Please enter a valid email address.';
+      return 'Please enter a strong password with at least 6 characters.';
+    } else if (errorMessage.contains('Unable to validate email address: invalid format') || errorMessage.contains('Invalid email')) {
+      return 'Please enter a valid email address (example@email.com).';
     } else if (errorMessage.contains('For security purposes, you can only request this once every 60 seconds')) {
       return 'Please wait 60 seconds before requesting another password reset.';
+    } else if (errorMessage.contains('fetch')) {
+      return 'Network error. Please check your internet connection and try again.';
+    } else if (errorMessage.contains('timeout')) {
+      return 'Request timed out. Please check your internet connection.';
+    } else if (errorMessage.contains('Failed to establish') || errorMessage.contains('Connection failed')) {
+      return 'Unable to connect. Please check your internet connection.';
+    } else if (errorMessage.isEmpty) {
+      return 'An unexpected error occurred. Please try again.';
     } else {
-      return errorMessage.replaceFirst('Exception: ', '');
+      return errorMessage.replaceFirst('Exception: ', '').replaceFirst('Error: ', '');
     }
   }
 
@@ -411,6 +492,111 @@ class AuthProvider extends ChangeNotifier {
         await supabase.from('app_usage_sessions').insert(data);
         break;
       // Add more cases as needed
+    }
+  }
+
+  /// Test database connection and basic functionality
+  Future<Map<String, dynamic>> testDatabaseConnection() async {
+    try {
+      debugPrint('🔍 [AUTH_PROVIDER] Testing database connection...');
+      
+      // Test 1: Check if we can connect to Supabase
+      final user = supabase.auth.currentUser;
+      debugPrint('🔍 [AUTH_PROVIDER] Current user: ${user?.id}');
+      
+      // Test 2: Try to query profiles table
+      try {
+        await supabase
+            .from('profiles')
+            .select('id')
+            .limit(1);
+        debugPrint('🔍 [AUTH_PROVIDER] Profiles table accessible: true');
+      } catch (e) {
+        debugPrint('🔍 [AUTH_PROVIDER] Profiles table error: $e');
+      }
+      
+      // Test 3: Try to query user_points table  
+      try {
+        await supabase
+            .from('user_points')
+            .select('id')
+            .limit(1);
+        debugPrint('🔍 [AUTH_PROVIDER] User_points table accessible: true');
+      } catch (e) {
+        debugPrint('🔍 [AUTH_PROVIDER] User_points table error: $e');
+      }
+      
+      return {
+        'success': true,
+        'message': 'Database connection test completed - check debug logs'
+      };
+    } catch (e) {
+      debugPrint('🔴 [AUTH_PROVIDER] Database connection test failed: $e');
+      return {
+        'success': false,
+        'error': e.toString()
+      };
+    }
+  }
+
+  /// Create user profile manually (fallback for trigger issues)
+  Future<void> _createUserProfile(User user, String username) async {
+    try {
+      // Create profile with only columns that exist in the schema
+      await supabase.from('profiles').upsert({
+        'id': user.id,
+        'username': username,
+        'email': user.email,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+        'notifications_enabled': true,
+        'dark_mode': false,
+        'sound_enabled': true,
+      });
+      
+      debugPrint('🟢 [AUTH_PROVIDER] User profile created manually');
+    } catch (e) {
+      debugPrint('⚠️ [AUTH_PROVIDER] Manual profile creation failed: $e');
+      // This is a fallback, so we don't throw the error
+    }
+  }
+
+  /// Create user settings record
+  Future<void> _createUserSettings(String userId) async {
+    try {
+      await supabase.from('user_settings').insert({
+        'user_id': userId,
+        'daily_screen_time_limit': 0,
+        'reward_notifications': true,
+        'strict_mode': false,
+        'allow_override': true,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+      
+      debugPrint('🟢 [AUTH_PROVIDER] User settings created');
+    } catch (e) {
+      debugPrint('⚠️ [AUTH_PROVIDER] User settings creation failed (RLS policy): $e');
+      // Non-critical - settings can be created later
+    }
+  }
+
+  /// Create user points record
+  Future<void> _createUserPoints(String userId) async {
+    try {
+      await supabase.from('user_points').insert({
+        'user_id': userId,
+        'total_points': 0,
+        'level': 1,
+        'current_streak_days': 0,
+        'best_streak_days': 0,
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+      
+      debugPrint('🟢 [AUTH_PROVIDER] User points created');
+    } catch (e) {
+      debugPrint('⚠️ [AUTH_PROVIDER] User points creation failed (RLS policy): $e');
+      // Non-critical - points can be initialized later
     }
   }
 }

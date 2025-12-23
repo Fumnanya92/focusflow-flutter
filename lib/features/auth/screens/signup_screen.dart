@@ -175,13 +175,17 @@ class _SignupScreenState extends State<SignupScreen> {
                       decoration: const InputDecoration(
                         labelText: 'Username',
                         hintText: 'Choose a unique username',
+                        prefixIcon: Icon(Icons.person),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter a username';
+                          return 'Username is required';
                         }
                         if (value.length < 3) {
                           return 'Username must be at least 3 characters';
+                        }
+                        if (value.length > 20) {
+                          return 'Username must be less than 20 characters';
                         }
                         if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
                           return 'Username can only contain letters, numbers, and underscores';
@@ -198,14 +202,15 @@ class _SignupScreenState extends State<SignupScreen> {
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
                         labelText: 'Email',
-                        hintText: 'Enter your email',
+                        hintText: 'Enter your email address',
+                        prefixIcon: Icon(Icons.email),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return 'Email address is required';
                         }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                          return 'Please enter a valid email';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value.trim())) {
+                          return 'Please enter a valid email address';
                         }
                         return null;
                       },
@@ -219,7 +224,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       obscureText: !_isPasswordVisible,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        hintText: 'Enter your password (8+ characters)',
+                        hintText: 'At least 6 characters',
+                        prefixIcon: const Icon(Icons.lock),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _isPasswordVisible
@@ -235,10 +241,10 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter a password';
+                          return 'Password is required';
                         }
-                        if (value.length < 8) {
-                          return 'Password must be at least 8 characters';
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
                         }
                         return null;
                       },
@@ -284,18 +290,30 @@ class _SignupScreenState extends State<SignupScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: authProvider.isLoading ? null : _handleSignup,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: authProvider.isLoading 
+                              ? AppTheme.primary.withValues(alpha: 0.6)
+                              : AppTheme.primary,
+                        ),
                         child: authProvider.isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppTheme.backgroundDark,
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height: 16,
+                                    width: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        AppTheme.backgroundDark,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 12),
+                                  const Text('Creating Account...'),
+                                ],
                               )
-                            : const Text('Sign Up'),
+                            : const Text('Create Account'),
                       ),
                     ),
 

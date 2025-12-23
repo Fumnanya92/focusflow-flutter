@@ -25,9 +25,13 @@ class LocalStorageService {
   static Future<void> initialize() async {
     await Hive.initFlutter();
     
-    // Register adapters
-    Hive.registerAdapter(UserDataAdapter());
-    Hive.registerAdapter(AppSettingsAdapter());
+    // Register adapters only if not already registered
+    if (!Hive.isAdapterRegistered(0)) {
+      Hive.registerAdapter(UserDataAdapter());
+    }
+    if (!Hive.isAdapterRegistered(1)) {
+      Hive.registerAdapter(AppSettingsAdapter());
+    }
     
     // Get encryption key for sensitive data
     final encryptionKey = _getEncryptionKey();
@@ -51,7 +55,16 @@ class LocalStorageService {
   }
 
   static Future<void> clearUserData() async {
-    await _userBox.delete('current_user');
+    // Clear user authentication data
+    await _userBox.clear();
+    
+    // Clear ALL cached data (points, sessions, achievements, etc.)
+    // This prevents data leakage between users
+    await _cacheBox.clear();
+    
+    // Note: We keep _settingsBox (app-level settings like theme)
+    // If you want to clear app settings too between users, uncomment:
+    // await _settingsBox.clear();
   }
 
   static bool isUserLoggedIn() {

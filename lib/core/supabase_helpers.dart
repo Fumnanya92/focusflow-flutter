@@ -1,13 +1,37 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Helper to access Supabase client globally
-final SupabaseClient supabase = Supabase.instance.client;
+// Helper to access Supabase client globally (lazy initialization)
+SupabaseClient get supabase {
+  try {
+    return Supabase.instance.client;
+  } catch (e) {
+    throw Exception('Supabase not initialized. Call Supabase.initialize() first.');
+  }
+}
 
 // Helper to check if user is authenticated
-bool get isAuthenticated => supabase.auth.currentUser != null;
+bool get isAuthenticated {
+  try {
+    return supabase.auth.currentUser != null;
+  } catch (e) {
+    return false;
+  }
+}
 
 // Helper to get current user
-User? get currentUser => supabase.auth.currentUser;
+User? get currentUser {
+  try {
+    return supabase.auth.currentUser;
+  } catch (e) {
+    return null;
+  }
+}
 
 // Helper to get current user's ID
-String? get currentUserId => supabase.auth.currentUser?.id;
+String? get currentUserId {
+  try {
+    return supabase.auth.currentUser?.id;
+  } catch (e) {
+    return null;
+  }
+}
