@@ -44,19 +44,24 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
     
     try {
       final blockingProvider = Provider.of<AppBlockingProvider>(context, listen: false);
-      final installedApps = await blockingProvider.getInstalledApps();
+      
+      debugPrint('🔄 Loading installed apps from system...');
+      final installedApps = await blockingProvider.getInstalledApps(forceRefresh: true);
+      debugPrint('📱 Received ${installedApps.length} apps from native layer');
       
       setState(() {
         _installedApps = installedApps.map((app) => {
-          'name': app['appName']?.toString() ?? 'Unknown App',
+          'name': app['name']?.toString() ?? 'Unknown App',
           'package': app['packageName']?.toString() ?? '',
           'category': _categorizeApp(app['packageName']?.toString() ?? ''),
           'isSystemApp': app['isSystemApp'] ?? false,
         }).where((app) => 
           app['package']!.isNotEmpty && 
           !app['package']!.startsWith('com.android.') &&
-          !(app['isSystemApp'] as bool)
+          app['package'] != 'com.focusflow.productivity' // Exclude our own app
         ).toList();
+        
+        debugPrint('🔍 After filtering: ${_installedApps.length} apps available');
         
         // Sort by app name
         _installedApps.sort((a, b) => a['name'].toString().toLowerCase().compareTo(b['name'].toString().toLowerCase()));
@@ -77,10 +82,15 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
         }
       }
       
+      if (_installedApps.isEmpty) {
+        debugPrint('⚠️ WARNING: No apps detected! This might be a permission or compatibility issue.');
+      }
+      
     } catch (e) {
-      debugPrint('Error loading installed apps: $e');
+      debugPrint('❌ Error loading installed apps: $e');
       setState(() {
         _isLoading = false;
+        // Don't clear the list in case of error, user can try refreshing
       });
     }
   }
@@ -132,8 +142,21 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
   
   void _initializeSettings() {
     // Load existing time schedule settings
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final blockingProvider = Provider.of<AppBlockingProvider>(context, listen: false);
+      
+      debugPrint('📋 Loading existing settings...');
+      debugPrint('📋 Blocked apps count: ${blockingProvider.blockedApps.length}');
+      debugPrint('📋 Time schedule enabled: ${blockingProvider.enableTimeSchedule}');
+      
+      // Only check for truly stale cache (7+ days old) - don't clear recent valid settings
+      final hasStale = await blockingProvider.hasStaleCache();
+      if (hasStale && mounted) {
+        debugPrint('⚠️ Stale cache detected, clearing...');
+        _showStaleCacheWarning();
+      } else {
+        debugPrint('✅ Cache is fresh, preserving user settings');
+      }
       
       setState(() {
         // Always load the current enableTimeSchedule state
@@ -144,8 +167,57 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
             blockingProvider.blockingEndTime != null) {
           _startTime = blockingProvider.blockingStartTime!;
           _endTime = blockingProvider.blockingEndTime!;
+          debugPrint('⏰ Loaded time schedule: ${_startTime.format(context)} - ${_endTime.format(context)}');
         }
+        
+        // Load blocked apps into local state
+        _selectedApps.clear();
+        for (final app in blockingProvider.blockedApps) {
+          if (app.isBlocked) {
+            _selectedApps[app.packageName] = true;
+            debugPrint('🚫 Restored blocked app: ${app.appName}');
+          }
+        }
+        
+        debugPrint('📋 Settings initialization complete. Selected apps: ${_selectedApps.values.where((selected) => selected).length}');
       });
+    });
+  }
+
+  void _showStaleCacheWarning() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Old settings detected. Clearing automatically...',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.orange.shade800,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+    
+    // Automatically clear stale cache
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      await _clearCacheAndReset();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Stale cache cleared automatically'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     });
   }
   
@@ -286,59 +358,155 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
     }
   }
 
-  void _saveSettings() {
+  /// Helper method to programmatically clear cache and reset state
+  /// Call this method when stale cache is detected or manual reset is needed
+  Future<void> _clearCacheAndReset() async {
     final blockingProvider = Provider.of<AppBlockingProvider>(context, listen: false);
     
-    // Update blocked status for each app instead of clearing all
-    for (var app in _installedApps) {
-      final isSelected = _selectedApps[app['package']] == true;
-      final existingApp = blockingProvider.blockedApps.firstWhere(
-        (blocked) => blocked.packageName == app['package'],
-        orElse: () => BlockedApp(packageName: '', appName: ''),
-      );
+    await blockingProvider.clearAllSettings();
+    
+    // Reset local state
+    setState(() {
+      _selectedApps.clear();
+      _enableTimeSchedule = false;
+      _startTime = const TimeOfDay(hour: 9, minute: 0);
+      _endTime = const TimeOfDay(hour: 17, minute: 0);
+    });
+    
+    // Reload installed apps to reflect cleared state
+    await _loadInstalledApps();
+    
+    debugPrint('🧹 Cache cleared programmatically - fresh state restored');
+  }
+
+  String _getSuccessMessage() {
+    final selectedCount = _selectedApps.values.where((selected) => selected).length;
+    
+    if (selectedCount == 0) {
+      return 'All app blocking turned off';
+    }
+    
+    if (_enableTimeSchedule) {
+      return 'Blocking schedule set: ${_startTime.format(context)} - ${_endTime.format(context)}';
+    } else {
+      return 'Apps will be blocked 24/7 (no time schedule)';
+    }
+  }
+
+  Future<void> _saveSettings() async {
+    try {
+      // Extract context-dependent values at the beginning to avoid async gaps
+      final startTimeString = _startTime.format(context);
+      final endTimeString = _endTime.format(context);
       
-      if (isSelected) {
-        if (existingApp.packageName.isEmpty) {
-          // Add new blocked app
-          blockingProvider.addBlockedApp(app['package'], app['name']);
-        } else if (!existingApp.isBlocked) {
-          // Enable blocking for existing app
-          blockingProvider.toggleAppBlocking(app['package']);
+      // Show loading state
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Applying settings...'),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 1),
+        ),
+      );
+
+      final blockingProvider = Provider.of<AppBlockingProvider>(context, listen: false);
+      
+      debugPrint('🔧 Starting to save blocking settings...');
+      
+      // Update blocked status for each app instead of clearing all
+      for (var app in _installedApps) {
+        final isSelected = _selectedApps[app['package']] == true;
+        final existingApp = blockingProvider.blockedApps.firstWhere(
+          (blocked) => blocked.packageName == app['package'],
+          orElse: () => BlockedApp(packageName: '', appName: ''),
+        );
+        
+        if (isSelected) {
+          if (existingApp.packageName.isEmpty) {
+            // Add new blocked app
+            debugPrint('➕ Adding new blocked app: ${app['name']}');
+            await blockingProvider.addBlockedApp(app['package'], app['name']);
+          } else if (!existingApp.isBlocked) {
+            // Enable blocking for existing app
+            debugPrint('✅ Enabling blocking for: ${app['name']}');
+            await blockingProvider.toggleAppBlocking(app['package']);
+          }
+        } else {
+          if (existingApp.packageName.isNotEmpty && existingApp.isBlocked) {
+            // Disable blocking but don't remove the app
+            debugPrint('❌ Disabling blocking for: ${app['name']}');
+            await blockingProvider.toggleAppBlocking(app['package']);
+          }
         }
+      }
+      
+      // Set or disable time schedule
+      if (_enableTimeSchedule) {
+        debugPrint('⏰ Setting time schedule: $startTimeString - $endTimeString');
+        blockingProvider.setBlockingSchedule(_startTime, _endTime);
       } else {
-        if (existingApp.packageName.isNotEmpty && existingApp.isBlocked) {
-          // Disable blocking but don't remove the app
-          blockingProvider.toggleAppBlocking(app['package']);
-        }
+        debugPrint('⏰ Disabling time schedule - blocking 24/7');
+        blockingProvider.disableTimeSchedule();
+      }
+      
+      final selectedCount = _selectedApps.values.where((selected) => selected).length;
+      debugPrint('📊 Selected apps count: $selectedCount');
+      debugPrint('📊 Actively blocked apps: ${blockingProvider.activelyBlockedApps.length}');
+      
+      // Start monitoring if we have any blocked apps, otherwise stop monitoring
+      if (selectedCount > 0 && blockingProvider.activelyBlockedApps.isNotEmpty) {
+        debugPrint('🚀 Starting monitoring with ${blockingProvider.activelyBlockedApps.length} blocked apps');
+        await blockingProvider.startMonitoring();
+        
+        // Give a small delay to ensure service is fully started
+        await Future.delayed(const Duration(milliseconds: 500));
+        
+        debugPrint('✅ Monitoring started successfully');
+      } else if (selectedCount == 0) {
+        // User wants to turn off all blocking
+        debugPrint('🛑 Stopping monitoring - no apps selected');
+        await blockingProvider.stopMonitoring();
+      }
+
+      // Hide loading and show success
+      if (mounted) {
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
+        scaffoldMessenger.hideCurrentSnackBar();
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text(_getSuccessMessage()),
+            backgroundColor: AppTheme.primary,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      
+      debugPrint('🎉 Settings saved successfully');
+      
+    } catch (e) {
+      debugPrint('❌ Error saving settings: $e');
+      if (mounted) {
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
+        scaffoldMessenger.hideCurrentSnackBar();
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('Error saving settings: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
       }
     }
     
-    // Set or disable time schedule
-    if (_enableTimeSchedule) {
-      blockingProvider.setBlockingSchedule(_startTime, _endTime);
-    } else {
-      blockingProvider.disableTimeSchedule();
-    }
-    
-    // 🚀 Start monitoring if we have any blocked apps
-    if (blockingProvider.activelyBlockedApps.isNotEmpty) {
-      blockingProvider.startMonitoring();
-    }
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_enableTimeSchedule 
-          ? 'Blocking schedule set: ${_startTime.format(context)} - ${_endTime.format(context)}'
-          : 'Apps will be blocked 24/7 (no time schedule)'),
-        backgroundColor: AppTheme.primary,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-    
-    if (Navigator.canPop(context)) {
-      context.pop();
-    } else {
-      context.go('/dashboard');
+    // Navigate away after operations complete
+    if (mounted) {
+      if (Navigator.canPop(context)) {
+        context.pop();
+      } else {
+        context.go('/dashboard');
+      }
     }
   }
 
@@ -363,11 +531,11 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: selectedCount > 0 ? _saveSettings : null,
+            onPressed: _saveSettings,  // Always allow saving
             child: Text(
-              'Save',
+              selectedCount > 0 ? 'Save' : 'Turn Off',
               style: TextStyle(
-                color: selectedCount > 0 ? AppTheme.primary : AppTheme.textGray,
+                color: AppTheme.primary,  // Always enabled
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -682,7 +850,9 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
                 child: Column(
                   children: [
                     Icon(
-                      Icons.search_off,
+                      _searchController.text.isNotEmpty 
+                          ? Icons.search_off
+                          : Icons.apps_outlined,
                       size: 64,
                       color: AppTheme.textGray,
                     ),
@@ -690,11 +860,37 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
                     Text(
                       _searchController.text.isNotEmpty
                           ? 'No apps found matching "${_searchController.text}"'
-                          : 'No apps found in this category',
+                          : _installedApps.isEmpty 
+                              ? 'No apps detected'
+                              : 'No apps found in this category',
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: AppTheme.textGray,
                       ),
+                      textAlign: TextAlign.center,
                     ),
+                    if (_installedApps.isEmpty) ...[
+                      const SizedBox(height: AppTheme.spaceMedium),
+                      Text(
+                        'Make sure app permissions are granted and try refreshing.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.textGray.withValues(alpha: 0.7),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: AppTheme.spaceMedium),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          debugPrint('🔄 User manually refreshing app list');
+                          _loadInstalledApps();
+                        },
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Refresh Apps'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primary,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               )

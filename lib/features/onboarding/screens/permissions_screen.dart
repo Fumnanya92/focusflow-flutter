@@ -66,7 +66,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> with WidgetsBindi
       // Check usage stats permission via method channel
       bool usageStatsGranted = false;
       try {
-        const platform = MethodChannel('app.focusflow/permissions');
+        const platform = MethodChannel('com.focusflow.productivity/permissions');
         usageStatsGranted = await platform.invokeMethod('checkUsageStatsPermission') ?? false;
       } catch (e) {
         debugPrint('Could not check usage stats permission: $e');
@@ -153,7 +153,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> with WidgetsBindi
     
     if (Platform.isAndroid) {
       try {
-        const platform = MethodChannel('app.focusflow/permissions');
+        const platform = MethodChannel('com.focusflow.productivity/permissions');
         await platform.invokeMethod('openUsageStatsSettings');
       } catch (e) {
         // Fallback to app settings

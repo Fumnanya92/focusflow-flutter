@@ -1,0 +1,69 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+// Load keystore properties from key.properties file
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    namespace "com.focusflow.productivity"
+    compileSdk 36
+    ndkVersion flutter.ndkVersion
+
+    defaultConfig {
+        applicationId "com.focusflow.productivity"
+        minSdk flutter.minSdkVersion
+        targetSdk 35
+        versionCode flutter.versionCode
+        versionName flutter.versionName
+    }
+
+    // Signing configurations
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+        coreLibraryDesugaringEnabled true
+    }
+
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            // Disable code shrinking temporarily to avoid R8/kotlin-metadata issues
+            minifyEnabled false
+            shrinkResources false
+            // Keep proguard files configured for future use if re-enabling minification
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+    // Modern Play libraries (SDK 34+ compliant)
+    implementation 'com.google.android.play:app-update:2.1.0'
+    implementation 'com.google.android.play:review:2.0.1'
+}
+
+flutter {
+    source "../.."
+}

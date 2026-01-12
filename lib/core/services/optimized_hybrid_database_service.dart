@@ -237,6 +237,7 @@ class OptimizedHybridDatabaseService {
         }
       });
       
+      // Use standard PostgreSQL upsert with proper conflict resolution
       await supabase.from('app_usage_summaries').upsert({
         'user_id': user.id,
         'date': today,
@@ -245,7 +246,7 @@ class OptimizedHybridDatabaseService {
         'app_breakdown': dailyUsage,
         'sessions_count': (await getLocalAppUsageSessions()).length,
         'updated_at': DateTime.now().toIso8601String(),
-      });
+      }, ignoreDuplicates: false, onConflict: 'user_id,date');
       
       debugPrint('✅ Daily usage summary synced to cloud');
     } catch (e) {

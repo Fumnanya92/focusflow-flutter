@@ -32,6 +32,7 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+pubspec.lock
 
 # Symbolication related
 app.*.symbols
@@ -46,6 +47,19 @@ app.*.map.json
 /android/app/build/
 /android/build/
 /android/gradle/
+/android/.gradle/
+/android/app/src/main/res/mipmap-*/
+/android/app/src/debug/res/
+/android/app/src/profile/res/
+
+# iOS build artifacts
+/ios/build/
+/ios/DerivedData/
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/ephemeral/
+/ios/Runner.xcworkspace/xcuserdata/
+/ios/Runner.xcodeproj/xcuserdata/
 
 # Environment variables - NEVER commit sensitive keys!
 .env
@@ -80,3 +94,11 @@ database_analysis.*
 key.properties
 keystore.properties
 focusflow-*.jks
+
+# Local development files
+/test/test_results.json
+/coverage/
+*.lcov
+
+# Platform-specific
+.metadata

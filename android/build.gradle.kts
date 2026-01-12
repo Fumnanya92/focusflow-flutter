@@ -5,6 +5,12 @@ allprojects {
     }
 }
 
+subprojects {
+    configurations.all {
+        exclude(group = "com.google.android.play", module = "core")
+    }
+}
+
 // Configure JVM toolchain for all subprojects
 subprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

@@ -1,4 +1,4 @@
-package com.example.focusflow
+package com.focusflow.productivity
 
 import android.content.BroadcastReceiver
 import android.content.Context

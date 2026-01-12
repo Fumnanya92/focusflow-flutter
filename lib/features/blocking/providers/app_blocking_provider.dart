@@ -70,7 +70,7 @@ class AppBlockingProvider extends ChangeNotifier {
     {'package': 'com.google.android.apps.youtube.vr', 'name': 'YouTube VR'},
   ];
 
-  static const MethodChannel _appMonitorChannel = MethodChannel('app.focusflow/monitor');
+  static const MethodChannel _appMonitorChannel = MethodChannel('com.focusflow.productivity/system');
 
 
   // Getters
@@ -90,15 +90,86 @@ class AppBlockingProvider extends ChangeNotifier {
     _initialize();
   }
 
+  // ✨ Clear all cached settings and start fresh
+  Future<void> clearAllSettings() async {
+    debugPrint('🧹 Clearing all cached settings for fresh start...');
+    
+    try {
+      // Stop monitoring first
+      stopMonitoring();
+      
+      // Clear in-memory data
+      _blockedApps.clear();
+      _blocksToday = 0;
+      _lastBlockDate = null;
+      _enableTimeSchedule = false;
+      _blockingStartTime = null;
+      _blockingEndTime = null;
+      _gracePeriodApps.clear();
+      _focusModeEnabled = false;
+      _currentlyBlockedApp = null;
+      
+      // Clear SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('blockedApps');
+      await prefs.remove('blocksToday');
+      await prefs.remove('lastBlockDate');
+      await prefs.remove('enableTimeSchedule');
+      await prefs.remove('blockingStartHour');
+      await prefs.remove('blockingStartMinute');
+      await prefs.remove('blockingEndHour');
+      await prefs.remove('blockingEndMinute');
+      
+      debugPrint('✅ All settings cleared successfully');
+      notifyListeners();
+      
+    } catch (e) {
+      debugPrint('❌ Error clearing settings: $e');
+    }
+  }
+
+  // Check if there's stale cache data and optionally auto-clear it
+  Future<bool> hasStaleCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final lastDateStr = prefs.getString('lastBlockDate');
+      
+      // Only consider cache stale if it's from more than 7 days ago
+      if (lastDateStr != null) {
+        final lastDate = DateTime.parse(lastDateStr);
+        final daysSince = DateTime.now().difference(lastDate).inDays;
+        return daysSince > 7; // Changed from 1 day to 7 days
+      }
+      
+      // Don't clear cache just because data exists - that's normal!
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Convenience method to clear cache if it's stale
+  /// Returns true if cache was cleared, false if no action was needed
+  Future<bool> clearStaleCache() async {
+    final isStale = await hasStaleCache();
+    if (isStale) {
+      await clearAllSettings();
+      debugPrint('🧹 Stale cache automatically cleared');
+      return true;
+    }
+    return false;
+  }
+
   void _initialize() async {
     await _loadBlockedApps();
     _loadBlocksToday();
     await _checkPermissionStatus();
-    if (_blockedApps.isNotEmpty) {
-      startMonitoring();
-    }
+    
+    // 🚫 Don't automatically start monitoring from cache
+    // Let user explicitly choose in the app selection screen
+    debugPrint('🔄 Provider initialized. Found ${_blockedApps.length} cached apps (not auto-starting monitoring)');
+    
     _startTaskReminderSystem();
-
     _startNativeBlockListener();
   }
 
@@ -106,8 +177,72 @@ class AppBlockingProvider extends ChangeNotifier {
 
   void _startNativeBlockListener() {
     debugPrint('🎯 Native service handles all blocking - Flutter only manages UI');
-    // Native service now handles all blocking independently
-    // Flutter only manages UI state and settings
+    
+    // Set up method call handler to receive blocking events from Android
+    _appMonitorChannel.setMethodCallHandler((MethodCall call) async {
+      switch (call.method) {
+        case 'onAppBlocked':
+          final String? packageName = call.arguments['packageName'];
+          final String? appName = call.arguments['appName'];
+          
+          if (packageName != null && appName != null) {
+            debugPrint('📱 Received blocked app notification from Android: $appName ($packageName)');
+            await _handleBlockedAppDetected(packageName, appName);
+          }
+          break;
+        default:
+          debugPrint('🔍 Unknown method call from Android: ${call.method}');
+      }
+    });
+    
+    debugPrint('🔗 Method call handler set up for Android blocking notifications');
+  }
+
+  /// Handle blocked app detected by Android native service
+  Future<void> _handleBlockedAppDetected(String packageName, String appName) async {
+    try {
+      debugPrint('🚫 Handling blocked app: $appName ($packageName)');
+      
+      // Check if app is in grace period
+      if (isInGracePeriod(packageName)) {
+        debugPrint('😌 App $appName is in grace period - allowing access');
+        return;
+      }
+      
+      // Update UI state to show blocking
+      _currentlyBlockedApp = appName;
+      notifyListeners();
+      
+      // Increment blocks counter
+      _blocksToday++;
+      await _saveBlocksToday();
+      
+      // Send notification about blocked app
+      await _sendBlockNotification(appName);
+      
+      debugPrint('🎯 Blocked app handled: $appName (Total blocks today: $_blocksToday)');
+      
+    } catch (e) {
+      debugPrint('❌ Error handling blocked app: $e');
+    }
+  }
+
+  /// Clear the currently blocked app state
+  void clearCurrentlyBlockedApp() {
+    _currentlyBlockedApp = null;
+    notifyListeners();
+  }
+
+  /// Send notification when an app is blocked
+  Future<void> _sendBlockNotification(String appName) async {
+    try {
+      await _appMonitorChannel.invokeMethod('sendNotification', {
+        'title': '🚫 App Blocked',
+        'message': '$appName was blocked during your focus session',
+      });
+    } catch (e) {
+      debugPrint('❌ Error sending block notification: $e');
+    }
   }
 
 
@@ -205,7 +340,12 @@ class AppBlockingProvider extends ChangeNotifier {
 
     notifyListeners();
     debugPrint('🚀 FOREGROUND SERVICE MONITORING STARTED - 100% RELIABLE!');
-    debugPrint('📱 Blocking ${activelyBlockedApps.length} apps with native Android service');
+    debugPrint('� DEBUG: Total blocked apps in memory: ${_blockedApps.length}');
+    for (final app in _blockedApps) {
+      debugPrint('🔍   - ${app.appName} (${app.packageName}) - isBlocked: ${app.isBlocked}');
+    }
+    debugPrint('🔍 DEBUG: Actively blocked apps (filtered): ${activelyBlockedApps.length}');
+    debugPrint('�📱 Blocking ${activelyBlockedApps.length} apps with native Android service');
     debugPrint('⚡ Flutter timer runs every 5s for UI updates only');
 
     Future.delayed(const Duration(seconds: 5), () {
@@ -223,8 +363,15 @@ class AppBlockingProvider extends ChangeNotifier {
               })
           .toList();
 
+      debugPrint('🔍 START_SERVICE DEBUG: Sending ${blockedAppsData.length} blocked apps to Android:');
+      for (final app in blockedAppsData) {
+        debugPrint('🔍   - ${app['name']} (${app['package']}) - blocked: ${app['blocked']}');
+      }
+      final jsonData = jsonEncode(blockedAppsData);
+      debugPrint('🔍 START_SERVICE DEBUG: JSON being sent: $jsonData');
+
       final result = await _appMonitorChannel.invokeMethod('startBlockingService', {
-        'blockedApps': jsonEncode(blockedAppsData),
+        'blockedApps': jsonData,
         'startHour': _blockingStartTime?.hour ?? -1,
         'startMinute': _blockingStartTime?.minute ?? -1,
         'endHour': _blockingEndTime?.hour ?? -1,
@@ -252,8 +399,15 @@ class AppBlockingProvider extends ChangeNotifier {
               })
           .toList();
 
+      debugPrint('🔍 DEBUG: Sending ${blockedAppsData.length} blocked apps to Android:');
+      for (final app in blockedAppsData) {
+        debugPrint('🔍   - ${app['name']} (${app['package']}) - blocked: ${app['blocked']}');
+      }
+      final jsonData = jsonEncode(blockedAppsData);
+      debugPrint('🔍 DEBUG: JSON being sent: $jsonData');
+
       await _appMonitorChannel.invokeMethod('updateBlockedApps', {
-        'blockedApps': jsonEncode(blockedAppsData),
+        'blockedApps': jsonData,
         'startHour': _blockingStartTime?.hour ?? -1,
         'startMinute': _blockingStartTime?.minute ?? -1,
         'endHour': _blockingEndTime?.hour ?? -1,
@@ -323,7 +477,14 @@ class AppBlockingProvider extends ChangeNotifier {
       _backgroundServiceRunning = false;
       debugPrint('🛑 Native blocking service stopped');
     } catch (e) {
-      debugPrint('❌ Error stopping service: $e');
+      // Handle the common MissingPluginException gracefully
+      if (e.toString().contains('MissingPluginException') || 
+          e.toString().contains('No implementation found')) {
+        debugPrint('ℹ️ Service already stopped or not running');
+      } else {
+        debugPrint('❌ Error stopping service: $e');
+      }
+      _backgroundServiceRunning = false;
     }
 
     notifyListeners();
@@ -370,11 +531,6 @@ class AppBlockingProvider extends ChangeNotifier {
 
 
 
-  void clearCurrentlyBlockedApp() {
-    _currentlyBlockedApp = null;
-    notifyListeners();
-  }
-
   Future<List<Map<String, dynamic>>> getInstalledApps({bool forceRefresh = false}) async {
     try {
       final now = DateTime.now();
@@ -382,6 +538,7 @@ class AppBlockingProvider extends ChangeNotifier {
           _installedApps != null &&
           _lastInstalledAppsUpdate != null &&
           now.difference(_lastInstalledAppsUpdate!) < const Duration(minutes: 5)) {
+        debugPrint('📱 Using cached app list: ${_installedApps!.length} apps');
         return _installedApps!;
       }
 
@@ -391,10 +548,29 @@ class AppBlockingProvider extends ChangeNotifier {
       _installedApps = apps.map((app) => Map<String, dynamic>.from(app as Map)).toList();
       _lastInstalledAppsUpdate = now;
 
-      debugPrint('✅ Found ${_installedApps!.length} installed apps');
+      debugPrint('✅ Found ${_installedApps!.length} installed apps from native layer');
+      
+      // Log some sample apps for debugging
+      if (_installedApps!.isNotEmpty) {
+        debugPrint('📋 Sample apps detected:');
+        _installedApps!.take(5).forEach((app) {
+          debugPrint('   - ${app['name']} (${app['packageName']})');
+        });
+        if (_installedApps!.length > 5) {
+          debugPrint('   ... and ${_installedApps!.length - 5} more apps');
+        }
+      } else {
+        debugPrint('⚠️ WARNING: No apps returned from native layer!');
+        debugPrint('💡 This could be due to:');
+        debugPrint('   - Missing permissions');
+        debugPrint('   - Android version compatibility issues');
+        debugPrint('   - Device-specific restrictions');
+      }
+      
       return _installedApps!;
     } catch (e) {
       debugPrint('❌ Error getting installed apps: $e');
+      debugPrint('💡 Method channel error - check Android implementation');
       return [];
     }
   }
@@ -649,6 +825,16 @@ class AppBlockingProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> _saveBlocksToday() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('blocksToday', _blocksToday);
+      await prefs.setString('lastBlockDate', DateTime.now().toIso8601String());
+    } catch (e) {
+      debugPrint('Error saving blocks today: $e');
+    }
+  }
+
   Future<void> _checkFacebookVariants() async {
     try {
       final installedApps = await getInstalledApps();
@@ -656,7 +842,7 @@ class AppBlockingProvider extends ChangeNotifier {
       // Check for Facebook apps
       final facebookApps = installedApps.where((app) {
         final packageName = app['packageName']?.toString().toLowerCase() ?? '';
-        final appName = app['appName']?.toString().toLowerCase() ?? '';
+        final appName = app['name']?.toString().toLowerCase() ?? '';
         return packageName.contains('facebook') || 
                packageName.contains('messenger') ||
                appName.contains('facebook') ||
@@ -668,7 +854,7 @@ class AppBlockingProvider extends ChangeNotifier {
 
       for (final app in facebookApps) {
         final packageName = app['packageName']?.toString() ?? 'Unknown';
-        final appName = app['appName']?.toString() ?? 'Unknown';
+        final appName = app['name']?.toString() ?? 'Unknown';
         debugPrint('📘   - $appName: $packageName');
 
         final isBlocked = _blockedApps.any((blocked) => blocked.packageName == packageName);
@@ -680,7 +866,7 @@ class AppBlockingProvider extends ChangeNotifier {
       // Check for YouTube apps
       final youtubeApps = installedApps.where((app) {
         final packageName = app['packageName']?.toString().toLowerCase() ?? '';
-        final appName = app['appName']?.toString().toLowerCase() ?? '';
+        final appName = app['name']?.toString().toLowerCase() ?? '';
         return packageName.contains('youtube') || 
                appName.contains('youtube');
       }).toList();
@@ -690,7 +876,7 @@ class AppBlockingProvider extends ChangeNotifier {
 
       for (final app in youtubeApps) {
         final packageName = app['packageName']?.toString() ?? 'Unknown';
-        final appName = app['appName']?.toString() ?? 'Unknown';
+        final appName = app['name']?.toString() ?? 'Unknown';
         debugPrint('📺   - $appName: $packageName');
 
         final isBlocked = _blockedApps.any((blocked) => blocked.packageName == packageName);

@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.focusflow.productivity">
     
     <!-- Essential Permissions for FocusFlow -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -8,11 +9,12 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
-    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <!-- Explicitly declare usage stats usage for Android Settings visibility -->
+    <uses-permission-sdk-23 android:name="android.permission.PACKAGE_USAGE_STATS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
     <uses-permission android:name="android.permission.GET_TASKS" />
@@ -21,8 +23,18 @@
         android:label="FocusFlow"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:requestLegacyExternalStorage="true"
-        android:usesCleartextTraffic="true">
+        android:requestLegacyExternalStorage="false"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:usesCleartextTraffic="false">
+        
+        <!-- Required for Google Play Store -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"
+            tools:replace="android:value" />
         
         <activity
             android:name=".MainActivity"
@@ -54,10 +66,10 @@
             android:name=".AppBlockingService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="specialUse">
+            android:foregroundServiceType="dataSync">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="App blocking and digital wellbeing" />
+                android:value="App usage monitoring for focus sessions" />
         </service>
         
         <!-- Boot receiver for service restart -->
@@ -78,6 +90,32 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+            
+        <!-- Health and Safety Declaration for Google Play -->
+        <meta-data
+            android:name="com.google.android.play.core.health.enabled"
+            android:value="true" />
+            
+        <!-- App Usage Justification -->
+        <meta-data
+            android:name="com.focusflow.app_usage_justification"
+            android:value="App monitors usage patterns to help users reduce screen time and improve digital wellbeing through focus sessions and app blocking features." />
+            
+        <!-- Usage Stats Declaration for Settings Visibility -->
+        <meta-data
+            android:name="android.permission.PACKAGE_USAGE_STATS"
+            android:value="required_for_app_blocking" />
+            
+        <!-- Custom File Provider to avoid authority conflicts -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.focusflow.productivity.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
     </application>
     
     <!-- Required to query activities that can process text, see:

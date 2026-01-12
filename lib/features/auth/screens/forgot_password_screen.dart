@@ -68,7 +68,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF04140A),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(

@@ -248,6 +248,10 @@ class AppTheme {
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       hintStyle: TextStyle(color: textGray.withValues(alpha: 0.6)),
       labelStyle: const TextStyle(color: textGrayLight),
+      // Ensure text is always visible
+      floatingLabelStyle: const TextStyle(color: primary),
+      prefixIconColor: textGrayLight,
+      suffixIconColor: textGrayLight,
     ),
     
     // Bottom Navigation Bar Theme

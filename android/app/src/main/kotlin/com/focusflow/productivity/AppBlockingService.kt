@@ -1,4 +1,4 @@
-package com.example.focusflow
+package com.focusflow.productivity
 
 import android.app.*
 import android.app.usage.UsageStats
@@ -184,9 +184,14 @@ class AppBlockingService : Service() {
     private fun updateBlockingConfiguration(intent: Intent) {
         try {
             // Update blocked apps
-            intent.getStringExtra(EXTRA_BLOCKED_APPS)?.let { appsJson ->
+            val appsJson = intent.getStringExtra(EXTRA_BLOCKED_APPS)
+            Log.d(TAG, "🔍 DEBUG: Received JSON from Flutter: '$appsJson'")
+            blockedApps.clear() // Always clear first
+            
+            if (!appsJson.isNullOrEmpty() && appsJson != "[]") {
+                Log.d(TAG, "🔍 DEBUG: JSON is not empty, parsing...")
                 val jsonArray = JSONArray(appsJson)
-                blockedApps.clear()
+                Log.d(TAG, "🔍 DEBUG: JSON array length: ${jsonArray.length()}")
                 
                 for (i in 0 until jsonArray.length()) {
                     val appObj = jsonArray.getJSONObject(i)
@@ -194,19 +199,51 @@ class AppBlockingService : Service() {
                     val appName = appObj.getString("name")
                     val isBlocked = appObj.optBoolean("blocked", true)
                     
+                    Log.d(TAG, "🔍 DEBUG: Processing app $i: $appName ($packageName) - blocked: $isBlocked")
+                    
                     if (isBlocked) {
                         blockedApps[packageName] = appName
+                        Log.d(TAG, "🔍 DEBUG: Added to blocked list: $packageName")
                     }
                 }
-                
-                Log.d(TAG, "📱 Updated blocked apps: ${blockedApps.size} apps")
+            } else {
+                Log.d(TAG, "🔍 DEBUG: JSON is empty or null")
+            }
+            
+            Log.d(TAG, "📱 Updated blocked apps: ${blockedApps.size} apps")
+            if (blockedApps.isEmpty()) {
+                Log.d(TAG, "🔓 No apps to block - all blocking disabled")
+                hideOverlay() // Hide any existing overlay
             }
             
             // Update time schedule
-            blockingStartHour = intent.getIntExtra("startHour", -1)
-            blockingStartMinute = intent.getIntExtra("startMinute", -1)
-            blockingEndHour = intent.getIntExtra("endHour", -1)
-            blockingEndMinute = intent.getIntExtra("endMinute", -1)
+            val newStartHour = intent.getIntExtra("startHour", -1)
+            val newStartMinute = intent.getIntExtra("startMinute", -1)
+            val newEndHour = intent.getIntExtra("endHour", -1)
+            val newEndMinute = intent.getIntExtra("endMinute", -1)
+            
+            blockingStartHour = newStartHour
+            blockingStartMinute = newStartMinute
+            blockingEndHour = newEndHour
+            blockingEndMinute = newEndMinute
+            
+            // If schedule is completely disabled, enable 24/7 blocking mode
+            if (newStartHour < 0 && newEndHour < 0) {
+                Log.d(TAG, "⏰ Time schedule disabled - enabling 24/7 blocking mode")
+                hideOverlay()
+                // Don't stop monitoring - 24/7 mode means always monitor
+                // Only stop monitoring if no apps are blocked at all
+                if (blockedApps.isEmpty()) {
+                    Log.d(TAG, "🛑 No apps to block - stopping monitoring completely")
+                    stopMonitoring()
+                } else {
+                    Log.d(TAG, "🚫 24/7 blocking mode active for ${blockedApps.size} apps")
+                    // Ensure monitoring is active in 24/7 mode
+                    if (!isMonitoring) {
+                        startMonitoring()
+                    }
+                }
+            }
             
             // Update focus mode
             isFocusModeEnabled = intent.getBooleanExtra(EXTRA_FOCUS_MODE, false)
@@ -315,6 +352,12 @@ class AppBlockingService : Service() {
     }
 
     private fun shouldBlockApp(packageName: String): Boolean {
+        // If no apps are configured for blocking, don't block anything
+        if (blockedApps.isEmpty()) {
+            Log.d(TAG, "❌ No apps configured for blocking")
+            return false
+        }
+        
         // Check if app is in blocked list
         if (!blockedApps.containsKey(packageName)) {
             Log.v(TAG, "📱 App $packageName not in blocked list")
@@ -346,8 +389,10 @@ class AppBlockingService : Service() {
             return withinSchedule
         }
         
-        Log.d(TAG, "❓ No blocking conditions met for $packageName")
-        return false
+        // 24/7 blocking mode: If app is in blocked list but no schedule/focus mode, 
+        // still block it (user wants this app blocked all the time)
+        Log.d(TAG, "🚫 24/7 blocking mode - blocking $packageName (no schedule restrictions)")
+        return true
     }
 
     private fun isWithinBlockingSchedule(): Boolean {
@@ -380,6 +425,9 @@ class AppBlockingService : Service() {
         
         // Show beautiful native overlay (no Flutter dependency!)
         showBlockingOverlay(appName, packageName)
+        
+        // Notify Flutter about the blocked app for statistics tracking
+        notifyFlutterAboutBlockedApp(packageName, appName)
         
         // NO automatic grace period - user should be blocked every time they try to open the app
         // Grace period only applies when user explicitly requests it
@@ -1241,7 +1289,7 @@ class AppBlockingService : Service() {
         try {
             // Send method channel call to Flutter to get task data
             val intent = Intent().apply {
-                setClassName(packageName, "com.example.focusflow.MainActivity")
+                setClassName(packageName, "com.focusflow.productivity.MainActivity")
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 putExtra("methodChannel", "getTaskStatus")
             }
@@ -1478,7 +1526,7 @@ class AppBlockingService : Service() {
     private fun openTasksApp() {
         try {
             val intent = Intent().apply {
-                setClassName(packageName, "com.example.focusflow.MainActivity")
+                setClassName(packageName, "com.focusflow.productivity.MainActivity")
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 putExtra("route", "/tasks")
             }
@@ -1524,6 +1572,21 @@ class AppBlockingService : Service() {
         taskReminderRunnable?.let { taskReminderHandler?.removeCallbacks(it) }
         taskReminderHandler = null
         Log.d(TAG, "🛑 Task reminder system stopped")
+    }
+
+    private fun notifyFlutterAboutBlockedApp(packageName: String, appName: String) {
+        try {
+            // Send broadcast intent to notify Flutter about blocked app
+            val intent = Intent("com.focusflow.productivity.APP_BLOCKED").apply {
+                putExtra("packageName", packageName)
+                putExtra("appName", appName)
+                putExtra("timestamp", System.currentTimeMillis())
+            }
+            sendBroadcast(intent)
+            Log.d(TAG, "📡 Flutter notified about blocked app: $appName")
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Failed to notify Flutter about blocked app: ${e.message}")
+        }
     }
 
     override fun onDestroy() {

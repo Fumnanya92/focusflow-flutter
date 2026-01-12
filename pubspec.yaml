@@ -1,7 +1,7 @@
 name: focusflow
 description: A mobile app to reduce social media addiction and boost productivity through gamification and smart app blocking.
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0+5  # Incremented for production release
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

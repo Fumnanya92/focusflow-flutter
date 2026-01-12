@@ -76,7 +76,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF04140A), // dark deep green background
       body: SafeArea(
         child: Column(
           children: [
@@ -110,10 +109,11 @@ class _LoginScreenState extends State<LoginScreen> {
               constraints: const BoxConstraints(maxWidth: 400),
               child: Form(
                 key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
+                child: AutofillGroup(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
                     // Logo
                     Container(
                       height: 80,
@@ -176,6 +176,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: TextFormField(
                         controller: _emailController,
                         style: const TextStyle(color: Colors.white),
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        autofillHints: const [
+                          AutofillHints.email,
+                          AutofillHints.username,
+                        ],
                         decoration: InputDecoration(
                           hintText: "Enter your email or username",
                           hintStyle: TextStyle(color: Colors.green.shade200),
@@ -221,6 +227,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _passwordController,
                         obscureText: !_isPasswordVisible,
                         style: const TextStyle(color: Colors.white),
+                        textInputAction: TextInputAction.done,
+                        autofillHints: const [
+                          AutofillHints.password,
+                        ],
+                        onFieldSubmitted: (_) => _handleLogin(),
                         decoration: InputDecoration(
                           hintText: "Enter your password",
                           hintStyle: TextStyle(color: Colors.green.shade200),
@@ -381,7 +392,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
 
                     const SizedBox(height: 30),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

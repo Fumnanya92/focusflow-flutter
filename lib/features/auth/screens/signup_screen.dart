@@ -95,7 +95,6 @@ class _SignupScreenState extends State<SignupScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF04140A),
       body: SafeArea(
         child: Column(
           children: [
@@ -172,6 +171,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     TextFormField(
                       controller: _usernameController,
                       keyboardType: TextInputType.text,
+                      style: const TextStyle(color: AppTheme.textWhite),
                       decoration: const InputDecoration(
                         labelText: 'Username',
                         hintText: 'Choose a unique username',
@@ -200,6 +200,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      style: const TextStyle(color: AppTheme.textWhite),
                       decoration: const InputDecoration(
                         labelText: 'Email',
                         hintText: 'Enter your email address',
@@ -222,6 +223,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     TextFormField(
                       controller: _passwordController,
                       obscureText: !_isPasswordVisible,
+                      style: const TextStyle(color: AppTheme.textWhite),
                       decoration: InputDecoration(
                         labelText: 'Password',
                         hintText: 'At least 6 characters',
@@ -256,6 +258,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     TextFormField(
                       controller: _confirmPasswordController,
                       obscureText: !_isConfirmPasswordVisible,
+                      style: const TextStyle(color: AppTheme.textWhite),
                       decoration: InputDecoration(
                         labelText: 'Confirm Password',
                         hintText: 'Confirm your password',

@@ -28,6 +28,12 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 
 void main() async {
+  // Global error handling for production
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    debugPrint('🚨 Flutter Error: ${details.exceptionAsString()}');
+  };
+  
   WidgetsFlutterBinding.ensureInitialized();
   
   // Preserve the splash screen until app is fully loaded (skip on web)
@@ -97,7 +103,7 @@ void main() async {
 
 /// Setup method channel for task reminder navigation
 void _setupNavigationChannel() {
-  const platform = MethodChannel('app.focusflow/navigation');
+  const platform = MethodChannel('com.focusflow.productivity/navigation');
   
   platform.setMethodCallHandler((call) async {
     if (call.method == 'navigateTo') {
@@ -206,9 +212,9 @@ class _FocusFlowAppState extends State<FocusFlowApp> {
         child: MaterialApp.router(
           title: 'FocusFlow',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
+          theme: AppTheme.darkTheme,
           darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeMode.system,
+          themeMode: ThemeMode.dark,
           routerConfig: appRouter,
           key: navigatorKey,
           builder: (context, child) => BlockingListener(
