@@ -269,15 +269,15 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(
+            Icon(
               Icons.school,
               color: AppTheme.primary,
               size: 28,
             ),
-            const SizedBox(width: AppTheme.spaceSmall),
-            const Text(
+            SizedBox(width: AppTheme.spaceSmall),
+            Text(
               'Want a Quick Tour?',
               style: TextStyle(
                 color: AppTheme.primary,

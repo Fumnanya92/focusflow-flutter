@@ -270,11 +270,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
+            const Row(
               children: [
-                const Icon(Icons.school, color: AppTheme.primary),
-                const SizedBox(width: AppTheme.spaceSmall),
-                const Text(
+                Icon(Icons.school, color: AppTheme.primary),
+                SizedBox(width: AppTheme.spaceSmall),
+                Text(
                   'Tutorials & Help',
                   style: TextStyle(
                     fontSize: 20,

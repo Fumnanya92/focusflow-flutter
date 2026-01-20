@@ -361,15 +361,15 @@ class _DashboardShowcaseWrapperState extends State<DashboardShowcaseWrapper> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(
+            Icon(
               Icons.check_circle,
               color: AppTheme.success,
               size: 28,
             ),
-            const SizedBox(width: AppTheme.spaceSmall),
-            const Text(
+            SizedBox(width: AppTheme.spaceSmall),
+            Text(
               'Dashboard Tour Complete!',
               style: TextStyle(color: AppTheme.success),
             ),

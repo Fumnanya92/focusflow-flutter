@@ -337,7 +337,7 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            timePickerTheme: TimePickerThemeData(
+            timePickerTheme: const TimePickerThemeData(
               backgroundColor: AppTheme.surfaceDark,
               hourMinuteTextColor: AppTheme.textWhite,
               dialHandColor: AppTheme.primary,
@@ -528,7 +528,7 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
             onPressed: _saveSettings,  // Always allow saving
             child: Text(
               selectedCount > 0 ? 'Save' : 'Turn Off',
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppTheme.primary,  // Always enabled
                 fontWeight: FontWeight.bold,
               ),
@@ -555,7 +555,7 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.warning_amber_rounded,
                             color: Colors.orange,
                             size: 24,
@@ -623,7 +623,7 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
                   const SizedBox(height: AppTheme.spaceSmall),
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.apps_rounded,
                         color: AppTheme.primary,
                         size: 20,
@@ -661,7 +661,7 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.schedule_rounded,
                         color: AppTheme.primary,
                         size: 20,
@@ -708,7 +708,7 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
                         children: [
                           Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.schedule_rounded,
                                 color: AppTheme.primary,
                                 size: 20,
@@ -745,7 +745,7 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
                           ),
                         ),
                         const SizedBox(width: AppTheme.spaceMedium),
-                        Icon(
+                        const Icon(
                           Icons.arrow_forward,
                           color: AppTheme.primary,
                           size: 20,
@@ -933,7 +933,7 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.add_circle_outline,
                         color: AppTheme.primary,
                         size: 20,
@@ -986,7 +986,7 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.info_outline,
                     color: AppTheme.primary,
                     size: 20,
@@ -1155,7 +1155,7 @@ class _TimeButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.access_time,
                   color: AppTheme.primary,
                   size: 16,

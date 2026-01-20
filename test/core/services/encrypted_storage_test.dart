@@ -16,7 +16,7 @@ void main() {
     });
 
     test('Input sanitization prevents security issues', () {
-      final maliciousInput = '<script>alert("xss")</script>';
+      const maliciousInput = '<script>alert("xss")</script>';
       final sanitized = DataValidationService.sanitizeInput(maliciousInput);
       
       expect(sanitized, isNot(contains('<')));
