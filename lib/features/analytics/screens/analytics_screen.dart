@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme.dart';
+import '../../../core/widgets/tutorial_back_button.dart';
 import '../../gamification/providers/gamification_provider.dart';
 import '../../focus/providers/focus_timer_provider.dart';
 
@@ -15,9 +15,8 @@ class AnalyticsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Analytics'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/dashboard'),
+        leading: const TutorialBackButton(
+          defaultRoute: '/dashboard',
         ),
       ),
       body: Consumer2<GamificationProvider, FocusTimerProvider>(

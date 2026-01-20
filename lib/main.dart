@@ -6,8 +6,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'core/theme.dart';
 import 'core/router.dart';
+import 'core/supabase_helpers.dart';
 import 'core/services/local_storage_service.dart';
 import 'core/services/optimized_hybrid_database_service.dart';
 import 'core/services/database_migration_service.dart';
@@ -67,6 +69,12 @@ void main() async {
       url: dotenv.env['SUPABASE_URL']!,
       anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
       debug: false, // Set to true only in development
+      authOptions: const FlutterAuthClientOptions(
+        authFlowType: AuthFlowType.pkce,
+      ),
+      realtimeClientOptions: const RealtimeClientOptions(
+        logLevel: RealtimeLogLevel.info,
+      ),
     );
     debugPrint('✅ Supabase initialized');
     
@@ -128,6 +136,8 @@ class _FocusFlowAppState extends State<FocusFlowApp> {
   void initState() {
     super.initState();
     _setupNavigationChannel();
+    _setupAuthListener();
+    
     // Remove splash screen after the app is initialized (skip on web)
     if (!kIsWeb) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -138,6 +148,26 @@ class _FocusFlowAppState extends State<FocusFlowApp> {
         }
       });
     }
+  }
+
+  void _setupAuthListener() {
+    // Listen for auth state changes to handle deep links
+    supabase.auth.onAuthStateChange.listen((data) {
+      final AuthChangeEvent event = data.event;
+      final Session? session = data.session;
+      
+      debugPrint('🔄 [DEEP_LINK] Auth event: $event');
+      
+      if (event == AuthChangeEvent.signedIn && session != null) {
+        debugPrint('✅ [DEEP_LINK] User signed in via deep link');
+        // Navigate to personalization or dashboard
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (navigatorKey.currentContext != null) {
+            navigatorKey.currentContext!.go('/personalization');
+          }
+        });
+      }
+    });
   }
 
   @override
@@ -217,8 +247,10 @@ class _FocusFlowAppState extends State<FocusFlowApp> {
           themeMode: ThemeMode.dark,
           routerConfig: appRouter,
           key: navigatorKey,
-          builder: (context, child) => BlockingListener(
-            child: child ?? Container(),
+          builder: (context, child) => ShowCaseWidget(
+            builder: (context) => BlockingListener(
+              child: child ?? Container(),
+            ),
           ),
         ),
       ),

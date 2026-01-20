@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/theme.dart';
+import '../../../core/widgets/tutorial_back_button.dart';
 import '../providers/task_provider.dart';
 import '../models/task_model.dart';
 import '../widgets/task_dialog.dart';
@@ -28,12 +28,8 @@ class _TasksScreenState extends State<TasksScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.surfaceDark,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            // Navigate back to dashboard instead of exiting app
-            context.go('/dashboard');
-          },
+        leading: const TutorialBackButton(
+          defaultRoute: '/dashboard',
         ),
         title: Text(
           'Tasks',

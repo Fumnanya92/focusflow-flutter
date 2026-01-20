@@ -46,6 +46,9 @@ class TaskProvider extends ChangeNotifier {
     if (weekTasks.isEmpty) return 0;
     return weekTasks.where((t) => t.isCompleted).length / weekTasks.length;
   }
+
+  List<Task> getTodayTasks() => todayTasks;
+  int getCompletedTasksToday() => completedTasksToday;
   
   int get totalXPEarned => completedTasks.fold(0, (sum, task) => sum + task.xpReward);
   

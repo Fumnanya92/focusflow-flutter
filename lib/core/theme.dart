@@ -46,6 +46,7 @@ class AppTheme {
   static const Color warning = Color(0xFFF59E0B);
   static const Color error = Color(0xFFEF4444);
   static const Color info = Color(0xFF3B82F6);
+  static const Color accent = Color(0xFFF59E0B); // Orange accent color
 
   // Additional theme colors for compatibility
   static const Color textPrimary = textWhite;

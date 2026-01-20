@@ -280,6 +280,7 @@ class AuthProvider extends ChangeNotifier {
         response = await supabase.auth.signUp(
           email: email.trim().toLowerCase(),
           password: password,
+          emailRedirectTo: 'io.focusflow.app://auth/confirm',
           data: {
             'username': constrainedUsername,
           },
@@ -294,6 +295,7 @@ class AuthProvider extends ChangeNotifier {
           response = await supabase.auth.signUp(
             email: email.trim().toLowerCase(),
             password: password,
+            emailRedirectTo: 'io.focusflow.app://auth/confirm',
           );
           debugPrint('🟢 [AUTH_PROVIDER] Retry successful');
         } else {

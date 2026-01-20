@@ -94,6 +94,13 @@ database_analysis.*
 key.properties
 keystore.properties
 focusflow-*.jks
+upload-keystore.jks
+keystore_base64.txt
+
+# Google Cloud service account (NEVER COMMIT)
+*service-account*.json
+*-service-account.json
+gatepass-*.json
 
 # Local development files
 /test/test_results.json

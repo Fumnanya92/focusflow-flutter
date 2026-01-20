@@ -191,7 +191,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> with WidgetsBindi
       builder: (context) => AlertDialog(
         title: const Text('Grant Permissions'),
         content: const Text(
-          'FocusFlow needs all permissions to work effectively. Please grant each permission by tapping on them.',
+          'Please grant each permission one by one by tapping on them. Android doesn\'t allow apps to request all permissions at once for security reasons.',
         ),
         actions: [
           TextButton(
@@ -444,7 +444,9 @@ class _PermissionsScreenState extends State<PermissionsScreen> with WidgetsBindi
                             const SizedBox(width: 8),
                           ],
                           Text(
-                            allGranted ? 'Continue to Setup' : 'Grant All Permissions',
+                            allGranted 
+                              ? 'Continue to Setup' 
+                              : 'Grant Permissions One by One',
                           ),
                         ],
                       ),

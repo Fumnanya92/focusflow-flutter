@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme.dart';
+import '../../../core/widgets/tutorial_back_button.dart';
 import '../providers/app_blocking_provider.dart';
 import '../models/blocked_app_model.dart';
 
@@ -519,15 +520,8 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('App Blocking Setup'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () {
-            if (Navigator.canPop(context)) {
-              context.pop();
-            } else {
-              context.go('/dashboard');
-            }
-          },
+        leading: const TutorialBackButton(
+          defaultRoute: '/dashboard',
         ),
         actions: [
           TextButton(

@@ -5,11 +5,14 @@ import 'supabase_helpers.dart';
 import '../features/onboarding/screens/welcome_screen.dart';
 import '../features/onboarding/screens/permissions_screen.dart';
 import '../features/onboarding/screens/personalization_screen.dart';
+import '../features/onboarding/screens/interactive_tutorial_screen.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
 import '../features/auth/screens/forgot_password_screen.dart';
+import '../features/auth/screens/auth_confirmation_screen.dart';
 
 import '../features/dashboard/screens/main_dashboard_screen.dart';
+import '../features/dashboard/screens/dashboard_showcase_screen.dart';
 import '../features/focus/screens/focus_timer_screen.dart';
 import '../features/tasks/screens/tasks_screen.dart';
 import '../features/tasks/screens/daily_task_prompt_screen.dart';
@@ -126,6 +129,13 @@ final GoRouter appRouter = GoRouter(
       name: 'personalization',
       builder: (context, state) => const PersonalizationScreen(),
     ),
+
+    // Interactive Tutorial
+    GoRoute(
+      path: '/interactive-tutorial',
+      name: 'interactive-tutorial',
+      builder: (context, state) => const InteractiveTutorialScreen(),
+    ),
     
     // Authentication
     GoRoute(
@@ -143,12 +153,29 @@ final GoRouter appRouter = GoRouter(
       name: 'forgot-password',
       builder: (context, state) => const ForgotPasswordScreen(),
     ),
+    GoRoute(
+      path: '/auth/confirm',
+      name: 'auth-confirm',
+      builder: (context, state) {
+        // Handle email confirmation deep link
+        final token = state.uri.queryParameters['token'];
+        final type = state.uri.queryParameters['type'];
+        return AuthConfirmationScreen(token: token, type: type);
+      },
+    ),
+    GoRoute(
+      path: '/reset-password',
+      name: 'reset-password',
+      builder: (context, state) => const ForgotPasswordScreen(),
+    ),
     
     // Main Dashboard
     GoRoute(
       path: '/dashboard',
       name: 'dashboard',
-      builder: (context, state) => const MainDashboardScreen(),
+      builder: (context, state) => const DashboardShowcaseWrapper(
+        child: MainDashboardScreen(),
+      ),
     ),
     
     // Focus Timer

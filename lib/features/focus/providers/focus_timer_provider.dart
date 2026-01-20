@@ -48,6 +48,8 @@ class FocusTimerProvider extends ChangeNotifier {
   FocusMode get focusMode => _focusMode;
   TimerState get timerState => _timerState;
   int get remainingSeconds => _remainingSeconds;
+  bool get isRunning => _timerState == TimerState.running;
+  int get remainingMinutes => _remainingSeconds ~/ 60;
   int get currentSession => _currentSession;
   int get totalSessions => _sessionsBeforeLongBreak;
   int get shortBreakMinutes => _shortBreakMinutes;

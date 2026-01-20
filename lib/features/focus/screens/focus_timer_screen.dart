@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme.dart';
+import '../../../core/widgets/tutorial_back_button.dart';
 import '../providers/focus_timer_provider.dart';
 
 class FocusTimerScreen extends StatelessWidget {
@@ -44,15 +44,8 @@ class FocusTimerScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Focus Timer'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (Navigator.canPop(context)) {
-              context.pop();
-            } else {
-              context.go('/dashboard');
-            }
-          },
+        leading: const TutorialBackButton(
+          defaultRoute: '/dashboard',
         ),
         actions: [
           IconButton(

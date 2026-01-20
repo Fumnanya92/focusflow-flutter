@@ -99,6 +99,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
 
           ListTile(
+            leading: const Icon(Icons.school),
+            title: const Text('Tutorials & Help'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              _showTutorialOptions(context);
+            },
+          ),
+
+          ListTile(
             leading: const Icon(Icons.info),
             title: const Text('About'),
             trailing: const Icon(Icons.chevron_right),
@@ -243,6 +252,161 @@ class _SettingsScreenState extends State<SettingsScreen> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showTutorialOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(AppTheme.spaceMedium),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.school, color: AppTheme.primary),
+                const SizedBox(width: AppTheme.spaceSmall),
+                const Text(
+                  'Tutorials & Help',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.spaceMedium),
+            
+            ListTile(
+              leading: const Icon(Icons.play_circle, color: AppTheme.primary),
+              title: const Text('Interactive Tutorial'),
+              subtitle: const Text('Complete walkthrough with live demos'),
+              onTap: () {
+                Navigator.pop(context);
+                context.go('/interactive-tutorial');
+              },
+            ),
+            
+            ListTile(
+              leading: const Icon(Icons.dashboard, color: AppTheme.accent),
+              title: const Text('Dashboard Tour'),
+              subtitle: const Text('Quick highlights of main features'),
+              onTap: () {
+                Navigator.pop(context);
+                // Navigate to dashboard and trigger showcase
+                context.go('/dashboard');
+                // The showcase will automatically start if not completed
+              },
+            ),
+            
+            ListTile(
+              leading: const Icon(Icons.refresh, color: AppTheme.success),
+              title: const Text('Reset All Tutorials'),
+              subtitle: const Text('Start fresh as a new user'),
+              onTap: () {
+                Navigator.pop(context);
+                _resetTutorials();
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.help, color: AppTheme.textSecondary),
+              title: const Text('App Features'),
+              subtitle: const Text('Learn about all FocusFlow features'),
+              onTap: () {
+                Navigator.pop(context);
+                _showHelpDialog(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _resetTutorials() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('tutorial_completed');
+      await prefs.remove('dashboard_tutorial_completed');
+      await prefs.remove('app_blocking_tutorial_completed');
+      await prefs.remove('focus_timer_tutorial_completed');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Tutorials reset! You can now see tutorials again.'),
+            backgroundColor: AppTheme.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error resetting tutorials'),
+            backgroundColor: AppTheme.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showHelpDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('FocusFlow Features'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHelpItem('🚫 App Blocking', 'Block distracting apps during focus sessions'),
+              _buildHelpItem('⏰ Focus Timer', 'Pomodoro and Deep Focus modes with progress tracking'),
+              _buildHelpItem('✅ Task Management', 'Daily task planning and completion tracking'),
+              _buildHelpItem('📊 Analytics', 'Detailed productivity insights and progress reports'),
+              _buildHelpItem('🎮 Gamification', 'Earn XP, unlock badges, and track streaks'),
+              _buildHelpItem('🏆 Rewards', 'Celebrate achievements and milestones'),
+              _buildHelpItem('📱 Phone Down', 'Challenge yourself to put your phone down'),
+              _buildHelpItem('⚙️ Settings', 'Customize notifications, themes, and preferences'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it!'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHelpItem(String title, String description) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(
+            description,
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 14,
+            ),
           ),
         ],
       ),

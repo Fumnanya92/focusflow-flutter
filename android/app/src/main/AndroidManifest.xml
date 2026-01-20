@@ -59,6 +59,14 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            
+            <!-- Deep link intent filter for email confirmations -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="io.focusflow.app" />
+            </intent-filter>
         </activity>
         
         <!-- FocusFlow App Blocking Service -->
@@ -128,5 +136,18 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        
+        <!-- CRITICAL: Required for Android 11+ to see all installed apps -->
+        <!-- This is needed for the app blocking feature to detect launchable apps -->
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+        </intent>
     </queries>
+    
+    <!-- PERMISSION FOR ANDROID 11+ PACKAGE VISIBILITY -->
+    <!-- This is the most important permission for detecting all installed apps on Android 11+ -->
+    <!-- Without this, only a limited set of apps will be visible due to package visibility restrictions -->
+    <!-- See: https://developer.android.com/about/versions/11/privacy/package-visibility -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" 
+        tools:ignore="QueryAllPackagesPermission" />
 </manifest>

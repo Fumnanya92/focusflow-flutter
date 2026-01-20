@@ -246,7 +246,8 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                           await prefs.setInt('daily_goal_minutes', _dailyGoalMinutes);
                           
                           if (context.mounted) {
-                            context.go('/dashboard');
+                            // Show tutorial option dialog
+                            _showTutorialOptionDialog();
                           }
                         }
                       : null,
@@ -256,6 +257,97 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showTutorialOptionDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Row(
+          children: [
+            const Icon(
+              Icons.school,
+              color: AppTheme.primary,
+              size: 28,
+            ),
+            const SizedBox(width: AppTheme.spaceSmall),
+            const Text(
+              'Want a Quick Tour?',
+              style: TextStyle(
+                color: AppTheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'FocusFlow has powerful features to boost your productivity!',
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: AppTheme.spaceMedium),
+            Container(
+              padding: const EdgeInsets.all(AppTheme.spaceMedium),
+              decoration: BoxDecoration(
+                color: AppTheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '📚 Interactive Tutorial includes:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: AppTheme.spaceSmall),
+                  _buildTutorialFeature('• App blocking setup with live demos'),
+                  _buildTutorialFeature('• Focus timer walkthrough'),
+                  _buildTutorialFeature('• Task management tutorial'),
+                  _buildTutorialFeature('• Analytics and rewards overview'),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go('/dashboard');
+            },
+            child: const Text('Skip for Now'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go('/interactive-tutorial');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Start Tutorial'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTutorialFeature(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 14),
       ),
     );
   }
