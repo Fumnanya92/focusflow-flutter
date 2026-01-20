@@ -299,7 +299,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               : AppTheme.primary,
                         ),
                         child: authProvider.isLoading
-                            ? Row(
+                            ? const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   SizedBox(
@@ -312,8 +312,8 @@ class _SignupScreenState extends State<SignupScreen> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
-                                  const Text('Creating Account...'),
+                                  SizedBox(width: 12),
+                                  Text('Creating Account...'),
                                 ],
                               )
                             : const Text('Create Account'),

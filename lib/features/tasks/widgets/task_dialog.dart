@@ -70,10 +70,10 @@ class _TaskDialogState extends State<TaskDialog> {
           children: [
             // Header
             Container(
-              padding: EdgeInsets.all(AppTheme.spaceMedium),
+              padding: const EdgeInsets.all(AppTheme.spaceMedium),
               decoration: BoxDecoration(
                 color: AppTheme.primary.withAlpha(25),
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(AppTheme.radiusMedium),
                   topRight: Radius.circular(AppTheme.radiusMedium),
                 ),
@@ -84,7 +84,7 @@ class _TaskDialogState extends State<TaskDialog> {
                     isEditing ? Icons.edit : Icons.add_task,
                     color: AppTheme.primary,
                   ),
-                  SizedBox(width: AppTheme.spaceSmall),
+                  const SizedBox(width: AppTheme.spaceSmall),
                   Text(
                     isEditing ? 'Edit Task' : 'Create New Task',
                     style: theme.textTheme.titleLarge?.copyWith(
@@ -103,7 +103,7 @@ class _TaskDialogState extends State<TaskDialog> {
             // Content
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.all(AppTheme.spaceMedium),
+                padding: const EdgeInsets.all(AppTheme.spaceMedium),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -124,7 +124,7 @@ class _TaskDialogState extends State<TaskDialog> {
                         },
                       ),
                       
-                      SizedBox(height: AppTheme.spaceMedium),
+                      const SizedBox(height: AppTheme.spaceMedium),
                       
                       // Description
                       TextFormField(
@@ -136,7 +136,7 @@ class _TaskDialogState extends State<TaskDialog> {
                         maxLines: 2,
                       ),
                       
-                      SizedBox(height: AppTheme.spaceMedium),
+                      const SizedBox(height: AppTheme.spaceMedium),
                       
                       // Priority and Tag
                       Column(
@@ -195,7 +195,7 @@ class _TaskDialogState extends State<TaskDialog> {
                         ],
                       ),
                       
-                      SizedBox(height: AppTheme.spaceMedium),
+                      const SizedBox(height: AppTheme.spaceMedium),
                       
                       // Estimated time and XP reward
                       Row(
@@ -215,7 +215,7 @@ class _TaskDialogState extends State<TaskDialog> {
                             ),
                           ),
                           
-                          SizedBox(width: AppTheme.spaceMedium),
+                          const SizedBox(width: AppTheme.spaceMedium),
                           
                           Expanded(
                             child: TextFormField(
@@ -234,7 +234,7 @@ class _TaskDialogState extends State<TaskDialog> {
                         ],
                       ),
                       
-                      SizedBox(height: AppTheme.spaceMedium),
+                      const SizedBox(height: AppTheme.spaceMedium),
                       
                       // Notes
                       TextFormField(
@@ -253,7 +253,7 @@ class _TaskDialogState extends State<TaskDialog> {
             
             // Action buttons
             Container(
-              padding: EdgeInsets.all(AppTheme.spaceMedium),
+              padding: const EdgeInsets.all(AppTheme.spaceMedium),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(color: Colors.grey.withAlpha(76)),

@@ -39,7 +39,7 @@ class MainDashboardScreen extends StatelessWidget {
                     children: [
                       // Header
                       Padding(
-                        padding: EdgeInsets.all(AppTheme.spaceMedium),
+                        padding: const EdgeInsets.all(AppTheme.spaceMedium),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -50,7 +50,7 @@ class MainDashboardScreen extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            SizedBox(width: AppTheme.spaceSmall),
+                            const SizedBox(width: AppTheme.spaceSmall),
                             Row(
                               children: [
                                 IconButton(
@@ -71,22 +71,22 @@ class MainDashboardScreen extends StatelessWidget {
                                   ),
                                   color: AppTheme.surfaceDark,
                                   itemBuilder: (context) => [
-                                    PopupMenuItem(
+                                    const PopupMenuItem(
                                       value: 'profile',
                                       child: Row(
                                         children: [
-                                          const Icon(Icons.person, color: AppTheme.textGrayLight),
-                                          const SizedBox(width: 8),
+                                          Icon(Icons.person, color: AppTheme.textGrayLight),
+                                          SizedBox(width: 8),
                                           Text('Profile', style: TextStyle(color: AppTheme.textGrayLight)),
                                         ],
                                       ),
                                     ),
-                                    PopupMenuItem(
+                                    const PopupMenuItem(
                                       value: 'logout',
                                       child: Row(
                                         children: [
-                                          const Icon(Icons.logout, color: AppTheme.error),
-                                          const SizedBox(width: 8),
+                                          Icon(Icons.logout, color: AppTheme.error),
+                                          SizedBox(width: 8),
                                           Text('Logout', style: TextStyle(color: AppTheme.error)),
                                         ],
                                       ),
@@ -109,15 +109,15 @@ class MainDashboardScreen extends StatelessWidget {
                         ),
                       ),
 
-                      SizedBox(height: AppTheme.spaceSmall),
+                      const SizedBox(height: AppTheme.spaceSmall),
 
                       // Welcome message
                       if (authProvider.userData?.username != null)
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
+                          padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
                           child: Container(
                             width: double.infinity,
-                            padding: EdgeInsets.all(AppTheme.spaceMedium),
+                            padding: const EdgeInsets.all(AppTheme.spaceMedium),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
@@ -132,12 +132,12 @@ class MainDashboardScreen extends StatelessWidget {
                             ),
                             child: Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.waving_hand,
                                   color: AppTheme.primary,
                                   size: 24,
                                 ),
-                                SizedBox(width: AppTheme.spaceSmall),
+                                const SizedBox(width: AppTheme.spaceSmall),
                                 Expanded(
                                   child: Text(
                                     'Ready to focus and be productive today?',
@@ -151,20 +151,20 @@ class MainDashboardScreen extends StatelessWidget {
                           ),
                         ),
 
-                      SizedBox(height: AppTheme.spaceMedium),
+                      const SizedBox(height: AppTheme.spaceMedium),
 
                       // 🛡️ App Blocking Status Card
                       Consumer<AppBlockingProvider>(
                         builder: (context, blockingProvider, child) {
                           if (blockingProvider.activelyBlockedApps.isEmpty) {
-                            return SizedBox.shrink(); // Hide if no blocked apps
+                            return const SizedBox.shrink(); // Hide if no blocked apps
                           }
                           
                           return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
+                            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
                             child: Container(
                               width: double.infinity,
-                              padding: EdgeInsets.all(AppTheme.spaceMedium),
+                              padding: const EdgeInsets.all(AppTheme.spaceMedium),
                               decoration: BoxDecoration(
                                 color: blockingProvider.isBlockingActive 
                                   ? AppTheme.success.withValues(alpha: 0.1)
@@ -186,7 +186,7 @@ class MainDashboardScreen extends StatelessWidget {
                                         color: blockingProvider.isBlockingActive ? AppTheme.success : AppTheme.textGray,
                                         size: 20,
                                       ),
-                                      SizedBox(width: AppTheme.spaceSmall),
+                                      const SizedBox(width: AppTheme.spaceSmall),
                                       Text(
                                         blockingProvider.isBlockingActive ? '🛡️ App Blocking Active' : '⏰ App Blocking Scheduled',
                                         style: theme.textTheme.titleMedium?.copyWith(
@@ -194,15 +194,15 @@ class MainDashboardScreen extends StatelessWidget {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      Spacer(),
+                                      const Spacer(),
                                       if (blockingProvider.isFocusModeEnabled)
                                         Container(
-                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                           decoration: BoxDecoration(
                                             color: AppTheme.primary.withValues(alpha: 0.2),
                                             borderRadius: BorderRadius.circular(12),
                                           ),
-                                          child: Text(
+                                          child: const Text(
                                             '🎯 FOCUS',
                                             style: TextStyle(
                                               color: AppTheme.primary,
@@ -213,7 +213,7 @@ class MainDashboardScreen extends StatelessWidget {
                                         ),
                                     ],
                                   ),
-                                  SizedBox(height: AppTheme.spaceSmall),
+                                  const SizedBox(height: AppTheme.spaceSmall),
                                   Text(
                                     blockingProvider.isFocusModeEnabled 
                                       ? 'Focus mode is blocking all ${blockingProvider.activelyBlockedApps.length} selected apps right now'
@@ -224,7 +224,7 @@ class MainDashboardScreen extends StatelessWidget {
                                       color: AppTheme.textGrayLight,
                                     ),
                                   ),
-                                  SizedBox(height: AppTheme.spaceSmall),
+                                  const SizedBox(height: AppTheme.spaceSmall),
                                   Row(
                                     children: [
                                       Text(
@@ -233,15 +233,15 @@ class MainDashboardScreen extends StatelessWidget {
                                           color: AppTheme.textGray,
                                         ),
                                       ),
-                                      Spacer(),
+                                      const Spacer(),
                                       TextButton(
                                         onPressed: () => context.go('/app-selection'),
                                         style: TextButton.styleFrom(
-                                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                           minimumSize: Size.zero,
                                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                         ),
-                                        child: Text(
+                                        child: const Text(
                                           'Manage',
                                           style: TextStyle(
                                             color: AppTheme.primary,
@@ -259,22 +259,22 @@ class MainDashboardScreen extends StatelessWidget {
                         },
                       ),
 
-                      SizedBox(height: AppTheme.spaceMedium),
+                      const SizedBox(height: AppTheme.spaceMedium),
 
                       // Gamification Stats Card
                       const GamificationStatsCard(),
 
-                      SizedBox(height: AppTheme.spaceLarge),
+                      const SizedBox(height: AppTheme.spaceLarge),
 
                       // Stats Cards
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
+                        padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
                         child: Row(
                           children: [
                             Expanded(
                               child: _LiveFocusTimeCard(timerProvider: timerProvider),
                             ),
-                            SizedBox(width: AppTheme.spaceMedium),
+                            const SizedBox(width: AppTheme.spaceMedium),
                             Expanded(
                               child: Consumer<AppBlockingProvider>(
                                 builder: (context, provider, child) => _StatCard(
@@ -289,11 +289,11 @@ class MainDashboardScreen extends StatelessWidget {
                         ),
                       ),
 
-                      SizedBox(height: AppTheme.spaceLarge),
+                      const SizedBox(height: AppTheme.spaceLarge),
 
                       // Quick Actions Section
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
+                        padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -301,7 +301,7 @@ class MainDashboardScreen extends StatelessWidget {
                               'Quick Actions',
                               style: theme.textTheme.titleLarge,
                             ),
-                            SizedBox(height: AppTheme.spaceMedium),
+                            const SizedBox(height: AppTheme.spaceMedium),
                             Row(
                               children: [
                                 Expanded(
@@ -313,7 +313,7 @@ class MainDashboardScreen extends StatelessWidget {
                                     onTap: () => context.go('/focus-timer'),
                                   ),
                                 ),
-                                SizedBox(width: AppTheme.spaceSmall),
+                                const SizedBox(width: AppTheme.spaceSmall),
                                 Expanded(
                                   child: _QuickActionCard(
                                     icon: Icons.task_alt,
@@ -325,7 +325,7 @@ class MainDashboardScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            SizedBox(height: AppTheme.spaceSmall),
+                            const SizedBox(height: AppTheme.spaceSmall),
                             Row(
                               children: [
                                 Expanded(
@@ -337,7 +337,7 @@ class MainDashboardScreen extends StatelessWidget {
                                     onTap: () => context.go('/app-selection'),
                                   ),
                                 ),
-                                SizedBox(width: AppTheme.spaceSmall),
+                                const SizedBox(width: AppTheme.spaceSmall),
                                 Expanded(
                                   child: _QuickActionCard(
                                     icon: Icons.emoji_events,
@@ -353,17 +353,17 @@ class MainDashboardScreen extends StatelessWidget {
                         ),
                       ),
 
-                      SizedBox(height: AppTheme.spaceLarge),
+                      const SizedBox(height: AppTheme.spaceLarge),
 
                       // Today's Tasks Section
                       _TodayTasksSection(taskProvider: taskProvider),
 
-                      SizedBox(height: AppTheme.spaceLarge),
+                      const SizedBox(height: AppTheme.spaceLarge),
 
                       // Active Challenges Section
                       const _LiveActiveChallengesSection(),
 
-                      SizedBox(height: 120), // Space for FAB and bottom nav
+                      const SizedBox(height: 120), // Space for FAB and bottom nav
                     ],
                   ),
                 ),
@@ -379,7 +379,7 @@ class MainDashboardScreen extends StatelessWidget {
               ],
             ),
           ),
-          bottomNavigationBar: _BottomNavBar(currentIndex: 0),
+          bottomNavigationBar: const _BottomNavBar(currentIndex: 0),
         );
       },
     );
@@ -407,9 +407,9 @@ class _LiveActiveChallengesSection extends StatelessWidget {
         
         if (currentChallenge == null || !isChallengeActive) {
           return Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
             child: Container(
-              padding: EdgeInsets.all(AppTheme.spaceMedium),
+              padding: const EdgeInsets.all(AppTheme.spaceMedium),
               decoration: BoxDecoration(
                 color: AppTheme.surfaceDark.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
@@ -425,14 +425,14 @@ class _LiveActiveChallengesSection extends StatelessWidget {
                     size: 32,
                     color: AppTheme.primary.withValues(alpha: 0.7),
                   ),
-                  SizedBox(height: AppTheme.spaceSmall),
+                  const SizedBox(height: AppTheme.spaceSmall),
                   Text(
                     'No Active Challenges',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: AppTheme.textGray,
                     ),
                   ),
-                  SizedBox(height: AppTheme.spaceSmall),
+                  const SizedBox(height: AppTheme.spaceSmall),
                   Text(
                     'Start a challenge to boost your focus and build better habits.',
                     textAlign: TextAlign.center,
@@ -451,20 +451,20 @@ class _LiveActiveChallengesSection extends StatelessWidget {
           children: [
             // Section Header
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
+              padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
               child: Text(
                 'Active Challenge',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
-            SizedBox(height: AppTheme.spaceMedium),
+            const SizedBox(height: AppTheme.spaceMedium),
             
             // Current Challenge Card
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
+              padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 500),
-                padding: EdgeInsets.all(AppTheme.spaceMedium),
+                padding: const EdgeInsets.all(AppTheme.spaceMedium),
                 decoration: BoxDecoration(
                   color: AppTheme.surfaceDark,
                   borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
@@ -494,10 +494,10 @@ class _LiveActiveChallengesSection extends StatelessWidget {
                             currentChallenge.name,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
-                          SizedBox(height: AppTheme.spaceSmall),
+                          const SizedBox(height: AppTheme.spaceSmall),
                           Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.people_outline,
                                 size: 16,
                                 color: AppTheme.textGray,
@@ -516,7 +516,7 @@ class _LiveActiveChallengesSection extends StatelessWidget {
                             ],
                           ),
                           if (challengeProvider.remainingSeconds > 0) ...[
-                            SizedBox(height: AppTheme.spaceSmall),
+                            const SizedBox(height: AppTheme.spaceSmall),
                             AnimatedSwitcher(
                               duration: const Duration(milliseconds: 300),
                               child: Text(
@@ -532,7 +532,7 @@ class _LiveActiveChallengesSection extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(width: AppTheme.spaceMedium),
+                    const SizedBox(width: AppTheme.spaceMedium),
                     // Challenge icon
                     Container(
                       width: 48,
@@ -541,7 +541,7 @@ class _LiveActiveChallengesSection extends StatelessWidget {
                         color: AppTheme.primary.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.timer_outlined,
                         color: AppTheme.primary,
                         size: 24,
@@ -650,7 +650,7 @@ class _LiveFocusTimeCardState extends State<_LiveFocusTimeCard> {
         }
 
         return Container(
-          padding: EdgeInsets.all(AppTheme.spaceMedium),
+          padding: const EdgeInsets.all(AppTheme.spaceMedium),
           decoration: BoxDecoration(
             color: AppTheme.surfaceDark,
             borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
@@ -683,7 +683,7 @@ class _LiveFocusTimeCardState extends State<_LiveFocusTimeCard> {
                     Container(
                       width: 8,
                       height: 8,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppTheme.primaryTeal,
                         shape: BoxShape.circle,
                       ),
@@ -691,7 +691,7 @@ class _LiveFocusTimeCardState extends State<_LiveFocusTimeCard> {
                   ],
                 ],
               ),
-              SizedBox(height: AppTheme.spaceSmall),
+              const SizedBox(height: AppTheme.spaceSmall),
               Text(
                 _displayValue,
                 style: theme.textTheme.displaySmall?.copyWith(
@@ -736,7 +736,7 @@ class _StatCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      padding: EdgeInsets.all(AppTheme.spaceMedium),
+      padding: const EdgeInsets.all(AppTheme.spaceMedium),
       decoration: BoxDecoration(
         color: AppTheme.surfaceDark,
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
@@ -755,7 +755,7 @@ class _StatCard extends StatelessWidget {
               height: 1.3,
             ),
           ),
-          SizedBox(height: AppTheme.spaceSmall),
+          const SizedBox(height: AppTheme.spaceSmall),
           Text(
             value,
             style: theme.textTheme.displaySmall?.copyWith(
@@ -788,7 +788,7 @@ class _BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppTheme.backgroundDark,
         border: Border(
           top: BorderSide(
@@ -799,7 +799,7 @@ class _BottomNavBar extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: AppTheme.spaceMedium,
             vertical: AppTheme.spaceSmall,
           ),
@@ -865,7 +865,7 @@ class _NavItem extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
       child: Padding(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: AppTheme.spaceSmall,
           vertical: AppTheme.spaceXSmall,
         ),
@@ -877,7 +877,7 @@ class _NavItem extends StatelessWidget {
               color: isSelected ? AppTheme.primaryTeal : AppTheme.textGray,
               size: 28,
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               label,
               style: theme.textTheme.labelSmall?.copyWith(
@@ -915,7 +915,7 @@ class _QuickActionCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
       child: Container(
-        padding: EdgeInsets.all(AppTheme.spaceMedium),
+        padding: const EdgeInsets.all(AppTheme.spaceMedium),
         decoration: BoxDecoration(
           color: AppTheme.surfaceDark,
           borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
@@ -932,7 +932,7 @@ class _QuickActionCard extends StatelessWidget {
               size: 28,
               color: color,
             ),
-            SizedBox(height: AppTheme.spaceSmall),
+            const SizedBox(height: AppTheme.spaceSmall),
             Text(
               title,
               style: theme.textTheme.titleSmall?.copyWith(
@@ -969,7 +969,7 @@ class _TodayTasksSection extends StatelessWidget {
     }
     
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
+      padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -987,14 +987,14 @@ class _TodayTasksSection extends StatelessWidget {
             ],
           ),
           
-          SizedBox(height: AppTheme.spaceMedium),
+          const SizedBox(height: AppTheme.spaceMedium),
           
           // Quick Add Task Button
           InkWell(
             onTap: () => _showQuickAddTask(context),
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
             child: Container(
-              padding: EdgeInsets.all(AppTheme.spaceMedium),
+              padding: const EdgeInsets.all(AppTheme.spaceMedium),
               decoration: BoxDecoration(
                 color: AppTheme.primary.withAlpha(25),
                 borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -1004,11 +1004,11 @@ class _TodayTasksSection extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.add_task,
                     color: AppTheme.primary,
                   ),
-                  SizedBox(width: AppTheme.spaceSmall),
+                  const SizedBox(width: AppTheme.spaceSmall),
                   Text(
                     'Add a task for today',
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -1020,12 +1020,12 @@ class _TodayTasksSection extends StatelessWidget {
             ),
           ),
           
-          SizedBox(height: AppTheme.spaceMedium),
+          const SizedBox(height: AppTheme.spaceMedium),
           
           // Overdue tasks (priority)
           if (overdueTasks.isNotEmpty) ...[
             Container(
-              padding: EdgeInsets.all(AppTheme.spaceMedium),
+              padding: const EdgeInsets.all(AppTheme.spaceMedium),
               decoration: BoxDecoration(
                 color: Colors.red.withAlpha(25),
                 borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -1039,7 +1039,7 @@ class _TodayTasksSection extends StatelessWidget {
                   Row(
                     children: [
                       const Icon(Icons.warning_amber, color: Colors.red, size: 20),
-                      SizedBox(width: AppTheme.spaceSmall),
+                      const SizedBox(width: AppTheme.spaceSmall),
                       Text(
                         'Overdue Tasks (${overdueTasks.length})',
                         style: theme.textTheme.titleSmall?.copyWith(
@@ -1049,7 +1049,7 @@ class _TodayTasksSection extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: AppTheme.spaceSmall),
+                  const SizedBox(height: AppTheme.spaceSmall),
                   ...overdueTasks.take(2).map((task) => _TaskItemWidget(
                     task: task,
                     taskProvider: taskProvider,
@@ -1057,7 +1057,7 @@ class _TodayTasksSection extends StatelessWidget {
                   )),
                   if (overdueTasks.length > 2)
                     Padding(
-                      padding: EdgeInsets.only(top: AppTheme.spaceSmall),
+                      padding: const EdgeInsets.only(top: AppTheme.spaceSmall),
                       child: Text(
                         '+${overdueTasks.length - 2} more overdue tasks',
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -1068,13 +1068,13 @@ class _TodayTasksSection extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: AppTheme.spaceMedium),
+            const SizedBox(height: AppTheme.spaceMedium),
           ],
           
           // Today's tasks
           if (todayTasks.isNotEmpty) ...[
             Container(
-              padding: EdgeInsets.all(AppTheme.spaceMedium),
+              padding: const EdgeInsets.all(AppTheme.spaceMedium),
               decoration: BoxDecoration(
                 color: AppTheme.surfaceDark,
                 borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -1084,8 +1084,8 @@ class _TodayTasksSection extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.today, color: AppTheme.primary, size: 20),
-                      SizedBox(width: AppTheme.spaceSmall),
+                      const Icon(Icons.today, color: AppTheme.primary, size: 20),
+                      const SizedBox(width: AppTheme.spaceSmall),
                       Text(
                         'Due Today (${todayTasks.length})',
                         style: theme.textTheme.titleSmall?.copyWith(
@@ -1094,7 +1094,7 @@ class _TodayTasksSection extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: AppTheme.spaceSmall),
+                  const SizedBox(height: AppTheme.spaceSmall),
                   ...todayTasks.take(3).map((task) => _TaskItemWidget(
                     task: task,
                     taskProvider: taskProvider,
@@ -1102,13 +1102,13 @@ class _TodayTasksSection extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: AppTheme.spaceMedium),
+            const SizedBox(height: AppTheme.spaceMedium),
           ],
           
           // Smart suggestions
           if (smartSuggestions.isNotEmpty && todayTasks.length < 3) ...[
             Container(
-              padding: EdgeInsets.all(AppTheme.spaceMedium),
+              padding: const EdgeInsets.all(AppTheme.spaceMedium),
               decoration: BoxDecoration(
                 color: AppTheme.primaryTeal.withAlpha(25),
                 borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -1121,8 +1121,8 @@ class _TodayTasksSection extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.lightbulb_outline, color: AppTheme.primaryTeal, size: 20),
-                      SizedBox(width: AppTheme.spaceSmall),
+                      const Icon(Icons.lightbulb_outline, color: AppTheme.primaryTeal, size: 20),
+                      const SizedBox(width: AppTheme.spaceSmall),
                       Text(
                         'Suggested Tasks',
                         style: theme.textTheme.titleSmall?.copyWith(
@@ -1132,7 +1132,7 @@ class _TodayTasksSection extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: AppTheme.spaceSmall),
+                  const SizedBox(height: AppTheme.spaceSmall),
                   ...smartSuggestions.take(3 - todayTasks.length).map((task) => _TaskItemWidget(
                     task: task,
                     taskProvider: taskProvider,
@@ -1172,7 +1172,7 @@ class _TaskItemWidget extends StatelessWidget {
     final theme = Theme.of(context);
     
     return Container(
-      margin: EdgeInsets.only(bottom: AppTheme.spaceSmall),
+      margin: const EdgeInsets.only(bottom: AppTheme.spaceSmall),
       child: Row(
         children: [
           // Checkbox
@@ -1191,7 +1191,7 @@ class _TaskItemWidget extends StatelessWidget {
                 Row(
                   children: [
                     Text(task.priorityEmoji),
-                    SizedBox(width: AppTheme.spaceXSmall),
+                    const SizedBox(width: AppTheme.spaceXSmall),
                     Expanded(
                       child: Text(
                         task.title,
@@ -1214,7 +1214,7 @@ class _TaskItemWidget extends StatelessWidget {
                   Row(
                     children: [
                       if (task.estimatedMinutes != null) ...[
-                        Icon(Icons.timer, size: 12, color: AppTheme.textGray),
+                        const Icon(Icons.timer, size: 12, color: AppTheme.textGray),
                         Text(
                           ' ${task.estimatedMinutes}m',
                           style: theme.textTheme.bodySmall?.copyWith(
@@ -1223,7 +1223,7 @@ class _TaskItemWidget extends StatelessWidget {
                         ),
                       ],
                       if (task.dueDate != null && task.estimatedMinutes != null)
-                        Text(' • ', style: TextStyle(color: AppTheme.textGray)),
+                        const Text(' • ', style: TextStyle(color: AppTheme.textGray)),
                       if (showOverdue)
                         Text(
                           'Overdue',
@@ -1249,7 +1249,7 @@ class _TaskItemWidget extends StatelessWidget {
           
           // XP reward
           Container(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: AppTheme.spaceSmall,
               vertical: 2,
             ),
@@ -1365,18 +1365,18 @@ class _RetractableFocusButtonState extends State<_RetractableFocusButton>
               ),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.timer_outlined,
                   color: Colors.white,
                   size: 24,
                 ),
-                const SizedBox(width: 12),
-                const Text(
+                SizedBox(width: 12),
+                Text(
                   'Start Focus Session',
                   style: TextStyle(
                     color: Colors.white,

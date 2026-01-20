@@ -102,7 +102,7 @@ class _StreakDisplayState extends State<StreakDisplay>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _buildStreakIcons(),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -117,7 +117,7 @@ class _StreakDisplayState extends State<StreakDisplay>
                         ),
                       ),
                       if (widget.streakDays >= 7) ...[
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           _getStreakSubtitle(),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -129,7 +129,7 @@ class _StreakDisplayState extends State<StreakDisplay>
                     ],
                   ),
                   if (widget.streakDays >= 30) ...[
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     _buildSparkleEffect(),
                   ],
                 ],
@@ -160,7 +160,7 @@ class _StreakDisplayState extends State<StreakDisplay>
               color: AppTheme.textGrayLight,
               size: widget.isLarge ? 24 : 20,
             ),
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
             Flexible(
               child: Text(
                 'Start your streak!',
@@ -313,7 +313,7 @@ class StreakWarningDialog extends StatelessWidget {
       title: Row(
         children: [
           Icon(Icons.warning, color: Colors.red[400], size: 28),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Text(
             '⚠️ STREAK DANGER',
             style: TextStyle(
@@ -327,7 +327,7 @@ class StreakWarningDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           StreakDisplay(streakDays: currentStreak, isLarge: true),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             'You\'re about to LOSE your $currentStreak-day streak!',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -336,7 +336,7 @@ class StreakWarningDialog extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'All that progress will be GONE.\nYou\'ll have to start over from day 1.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -345,9 +345,9 @@ class StreakWarningDialog extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           if (currentStreak >= 7) ...[
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Container(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.red[900]?.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
@@ -370,7 +370,7 @@ class StreakWarningDialog extends StatelessWidget {
           style: TextButton.styleFrom(
             foregroundColor: Colors.red[400],
           ),
-          child: Text('Break Streak 💔'),
+          child: const Text('Break Streak 💔'),
         ),
         ElevatedButton(
           onPressed: onKeepStreak,
@@ -378,7 +378,7 @@ class StreakWarningDialog extends StatelessWidget {
             backgroundColor: Colors.green[600],
             foregroundColor: Colors.white,
           ),
-          child: Text('Keep Streak! 🔥'),
+          child: const Text('Keep Streak! 🔥'),
         ),
       ],
     );

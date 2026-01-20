@@ -13,16 +13,16 @@ class FocusTimerScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Timer Settings'),
-        content: Column(
+        content: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Timer settings coming soon!'),
-            const SizedBox(height: 16),
-            const Text('Current features:'),
-            const Text('• Pomodoro Mode: 25 minutes'),
-            const Text('• Deep Focus: 60 minutes'),
-            const Text('• Points per minute of focus'),
-            const Text('• Streak tracking'),
+            Text('Timer settings coming soon!'),
+            SizedBox(height: 16),
+            Text('Current features:'),
+            Text('• Pomodoro Mode: 25 minutes'),
+            Text('• Deep Focus: 60 minutes'),
+            Text('• Points per minute of focus'),
+            Text('• Streak tracking'),
           ],
         ),
         actions: [

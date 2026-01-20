@@ -14,8 +14,8 @@ class GamificationStatsCard extends StatelessWidget {
     return Consumer<GamificationProvider>(
       builder: (context, gamification, child) {
         return Container(
-          margin: EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
-          padding: EdgeInsets.all(AppTheme.spaceMedium),
+          margin: const EdgeInsets.symmetric(horizontal: AppTheme.spaceMedium),
+          padding: const EdgeInsets.all(AppTheme.spaceMedium),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -36,12 +36,12 @@ class GamificationStatsCard extends StatelessWidget {
               // Header
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.emoji_events,
                     color: AppTheme.primary,
                     size: 24,
                   ),
-                  SizedBox(width: AppTheme.spaceSmall),
+                  const SizedBox(width: AppTheme.spaceSmall),
                   Text(
                     'Your Progress',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -51,7 +51,7 @@ class GamificationStatsCard extends StatelessWidget {
                   ),
                   const Spacer(),
                   Container(
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: AppTheme.spaceSmall,
                       vertical: 4,
                     ),
@@ -70,7 +70,7 @@ class GamificationStatsCard extends StatelessWidget {
                 ],
               ),
               
-              SizedBox(height: AppTheme.spaceMedium),
+              const SizedBox(height: AppTheme.spaceMedium),
               
               // Points and Level Progress
               Row(
@@ -86,7 +86,7 @@ class GamificationStatsCard extends StatelessWidget {
                             color: AppTheme.textPrimary,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           'Next level: ${gamification.pointsForNextLevel} pts',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -109,7 +109,7 @@ class GamificationStatsCard extends StatelessWidget {
                             value: gamification.levelProgress,
                             strokeWidth: 6,
                             backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
-                            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primary),
+                            valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primary),
                           ),
                         ),
                         Positioned.fill(
@@ -129,7 +129,7 @@ class GamificationStatsCard extends StatelessWidget {
                 ],
               ),
               
-              SizedBox(height: AppTheme.spaceMedium),
+              const SizedBox(height: AppTheme.spaceMedium),
               
               // Daily Goal Progress
               Column(
@@ -155,7 +155,7 @@ class GamificationStatsCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   LinearProgressIndicator(
                     value: gamification.dailyGoalProgress,
                     backgroundColor: AppTheme.backgroundLight.withValues(alpha: 0.5),
@@ -169,7 +169,7 @@ class GamificationStatsCard extends StatelessWidget {
                 ],
               ),
               
-              SizedBox(height: AppTheme.spaceMedium),
+              const SizedBox(height: AppTheme.spaceMedium),
               
               // Powerful Streak Display
               Row(
@@ -182,7 +182,7 @@ class GamificationStatsCard extends StatelessWidget {
                       },
                     ),
                   ),
-                  SizedBox(width: AppTheme.spaceMedium),
+                  const SizedBox(width: AppTheme.spaceMedium),
                   Expanded(
                     child: _StatItem(
                       icon: Icons.star,
@@ -217,7 +217,7 @@ class _StatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(AppTheme.spaceSmall),
+      padding: const EdgeInsets.all(AppTheme.spaceSmall),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
@@ -232,7 +232,7 @@ class _StatItem extends StatelessWidget {
             color: color,
             size: 20,
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

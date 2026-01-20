@@ -48,7 +48,7 @@ class _TasksScreenState extends State<TasksScreen> {
         children: [
           // Search and Filter Bar
           Container(
-            padding: EdgeInsets.all(AppTheme.spaceMedium),
+            padding: const EdgeInsets.all(AppTheme.spaceMedium),
             color: AppTheme.surfaceDark,
             child: Column(
               children: [
@@ -67,7 +67,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   ),
                 ),
                 
-                SizedBox(height: AppTheme.spaceMedium),
+                const SizedBox(height: AppTheme.spaceMedium),
                 
                 // Filter Chips
                 SingleChildScrollView(
@@ -108,8 +108,8 @@ class _TasksScreenState extends State<TasksScreen> {
           
           // Stats Card
           Container(
-            margin: EdgeInsets.all(AppTheme.spaceMedium),
-            padding: EdgeInsets.all(AppTheme.spaceMedium),
+            margin: const EdgeInsets.all(AppTheme.spaceMedium),
+            padding: const EdgeInsets.all(AppTheme.spaceMedium),
             decoration: BoxDecoration(
               color: AppTheme.surfaceDark,
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -156,26 +156,26 @@ class _TasksScreenState extends State<TasksScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.task_alt,
               size: 64,
               color: AppTheme.textGray,
             ),
-            SizedBox(height: AppTheme.spaceMedium),
+            const SizedBox(height: AppTheme.spaceMedium),
             Text(
               'No tasks found',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: AppTheme.textGray,
               ),
             ),
-            SizedBox(height: AppTheme.spaceSmall),
+            const SizedBox(height: AppTheme.spaceSmall),
             Text(
               'Start by adding your first task!',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppTheme.textGray,
               ),
             ),
-            SizedBox(height: AppTheme.spaceLarge),
+            const SizedBox(height: AppTheme.spaceLarge),
             ElevatedButton(
               onPressed: () => _showAddTaskDialog(context),
               style: ElevatedButton.styleFrom(
@@ -190,7 +190,7 @@ class _TasksScreenState extends State<TasksScreen> {
     }
 
     return ListView.builder(
-      padding: EdgeInsets.all(AppTheme.spaceMedium),
+      padding: const EdgeInsets.all(AppTheme.spaceMedium),
       itemCount: tasks.length,
       itemBuilder: (context, index) {
         final task = tasks[index];
@@ -263,7 +263,7 @@ class _FilterChip extends StatelessWidget {
     final color = isWarning ? Colors.red : AppTheme.primary;
     
     return Padding(
-      padding: EdgeInsets.only(right: AppTheme.spaceSmall),
+      padding: const EdgeInsets.only(right: AppTheme.spaceSmall),
       child: FilterChip(
         label: Text('$label ($count)'),
         selected: isSelected,
@@ -297,7 +297,7 @@ class _StatItem extends StatelessWidget {
     return Column(
       children: [
         Icon(icon, color: color, size: 28),
-        SizedBox(height: AppTheme.spaceXSmall),
+        const SizedBox(height: AppTheme.spaceXSmall),
         Text(
           value,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -332,13 +332,13 @@ class _TaskCard extends StatelessWidget {
     final theme = Theme.of(context);
     
     return Card(
-      margin: EdgeInsets.only(bottom: AppTheme.spaceMedium),
+      margin: const EdgeInsets.only(bottom: AppTheme.spaceMedium),
       color: AppTheme.surfaceDark,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         child: Padding(
-          padding: EdgeInsets.all(AppTheme.spaceMedium),
+          padding: const EdgeInsets.all(AppTheme.spaceMedium),
           child: Row(
             children: [
               // Checkbox
@@ -357,7 +357,7 @@ class _TaskCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(task.priorityEmoji),
-                        SizedBox(width: AppTheme.spaceXSmall),
+                        const SizedBox(width: AppTheme.spaceXSmall),
                         Expanded(
                           child: Text(
                             task.title,
@@ -376,7 +376,7 @@ class _TaskCard extends StatelessWidget {
                     ),
                     
                     if (task.description?.isNotEmpty ?? false) ...[
-                      SizedBox(height: AppTheme.spaceXSmall),
+                      const SizedBox(height: AppTheme.spaceXSmall),
                       Text(
                         task.description!,
                         style: theme.textTheme.bodyMedium?.copyWith(
@@ -391,12 +391,12 @@ class _TaskCard extends StatelessWidget {
                     ],
                     
                     if (task.estimatedMinutes != null || task.dueDate != null) ...[
-                      SizedBox(height: AppTheme.spaceXSmall),
+                      const SizedBox(height: AppTheme.spaceXSmall),
                       Row(
                         children: [
                           if (task.estimatedMinutes != null) ...[
-                            Icon(Icons.timer, size: 16, color: AppTheme.textGray),
-                            SizedBox(width: 4),
+                            const Icon(Icons.timer, size: 16, color: AppTheme.textGray),
+                            const SizedBox(width: 4),
                             Text(
                               '${task.estimatedMinutes}m',
                               style: theme.textTheme.bodySmall?.copyWith(
@@ -405,10 +405,10 @@ class _TaskCard extends StatelessWidget {
                             ),
                           ],
                           if (task.dueDate != null && task.estimatedMinutes != null)
-                            Text(' • ', style: TextStyle(color: AppTheme.textGray)),
+                            const Text(' • ', style: TextStyle(color: AppTheme.textGray)),
                           if (task.dueDate != null) ...[
-                            Icon(Icons.schedule, size: 16, color: AppTheme.textGray),
-                            SizedBox(width: 4),
+                            const Icon(Icons.schedule, size: 16, color: AppTheme.textGray),
+                            const SizedBox(width: 4),
                             Text(
                               _formatDueDate(task.dueDate!),
                               style: theme.textTheme.bodySmall?.copyWith(
@@ -424,11 +424,11 @@ class _TaskCard extends StatelessWidget {
                     
                     // Reminders
                     if (task.hasPendingReminders) ...[
-                      SizedBox(height: AppTheme.spaceXSmall),
+                      const SizedBox(height: AppTheme.spaceXSmall),
                       Row(
                         children: [
-                          Icon(Icons.notifications, size: 16, color: AppTheme.primaryTeal),
-                          SizedBox(width: 4),
+                          const Icon(Icons.notifications, size: 16, color: AppTheme.primaryTeal),
+                          const SizedBox(width: 4),
                           Text(
                             'Has reminders',
                             style: theme.textTheme.bodySmall?.copyWith(
@@ -445,7 +445,7 @@ class _TaskCard extends StatelessWidget {
               
               // XP reward
               Container(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: AppTheme.spaceSmall,
                   vertical: 4,
                 ),
@@ -481,7 +481,7 @@ class _TaskCard extends StatelessWidget {
                     ),
                   ),
                 ],
-                icon: Icon(Icons.more_vert, color: AppTheme.textGray),
+                icon: const Icon(Icons.more_vert, color: AppTheme.textGray),
               ),
             ],
           ),
